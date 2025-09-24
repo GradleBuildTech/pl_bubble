@@ -46,19 +46,12 @@ class AndroidBubbleService implements BubbleService {
   bool get isExpanded => _isExpanded;
 
   @override
-  Future<void> initialize() async {
+  Future<void> initialize(BubbleConfig config) async {
     if (_isInitialized) return;
 
     try {
+      await BubbleChannel.initialBubbleService(config);
       // Set up event stream from native side
-      BubbleChannel.setupEventStream().listen(
-        _handleEvent,
-        onError: (error) {
-          _eventController.addError(
-            BubbleException('Event stream error: $error', 'EVENT_STREAM_ERROR'),
-          );
-        },
-      );
 
       _isInitialized = true;
     } catch (e) {
@@ -70,9 +63,9 @@ class AndroidBubbleService implements BubbleService {
   }
 
   @override
-  Future<void> showBubble(BubbleConfig config) async {
+  Future<void> showBubble() async {
     try {
-      await BubbleChannel.showBubble(config);
+      await BubbleChannel.showBubble();
       _isVisible = true;
       _currentState = _currentState.copyWith(isVisible: true);
 

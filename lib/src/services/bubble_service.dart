@@ -17,11 +17,11 @@ abstract class BubbleService {
   /// Whether the bubble is currently expanded
   bool get isExpanded;
 
-  /// Initialize the bubble service
-  Future<void> initialize();
+  /// Initialize the bubble service with configuration
+  Future<void> initialize(BubbleConfig config);
 
   /// Show the bubble with given configuration
-  Future<void> showBubble(BubbleConfig config);
+  Future<void> showBubble();
 
   /// Hide the bubble
   Future<void> hideBubble();
