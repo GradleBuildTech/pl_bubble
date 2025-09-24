@@ -1,4 +1,4 @@
-package com.example.pl_bubble
+package com.example.pl_bubble.utils
 import android.content.Context
 
 val NOTIFICATION_CHANNEL_ID: String = "${Context::getPackageName}.bubble_service_channel"

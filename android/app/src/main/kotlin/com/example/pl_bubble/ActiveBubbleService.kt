@@ -11,6 +11,9 @@ import com.example.pl_bubble.bubble.notification.NotificationHelper
 import com.example.pl_bubble.bubble.service.BaseBubbleService
 import com.example.pl_bubble.bubble.service.BuBubbleBuilder
 import com.example.pl_bubble.bubble.utils.BubbleEdgeSide
+import com.example.pl_bubble.utils.BUBBLE_NOTIFICATION_ID
+import com.example.pl_bubble.utils.CHANNEL_NAME
+import com.example.pl_bubble.utils.NOTIFICATION_CHANNEL_ID
 import io.flutter.embedding.android.FlutterView
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
