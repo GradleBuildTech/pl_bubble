@@ -79,7 +79,7 @@ class OverlayPermissionException extends PermissionException {
 class NotificationPermissionException extends PermissionException {
   const NotificationPermissionException(
     String message, [
-    String? code,
+  String? code,
     String? reason,
     dynamic details,
     StackTrace? stackTrace,

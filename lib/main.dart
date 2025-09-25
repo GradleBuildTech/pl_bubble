@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'pl_bubble.dart';
 
 void main() {
   runApp(const MainApp());
@@ -21,8 +22,32 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    AndroidBubbleService().initialize(
+      BubbleConfig(
+        startPosition: BubblePosition(x: 0, y: 0),
+        bubbleSize: Size(60, 60),
+        animateToEdge: true,
+        isDraggable: true,
+        closeDistance: 200.0,
+        expandBubbleConfig: ExpandBubbleConfig(
+          width: BubbleConstants.matchParent.toDouble(),
+          height: 400.0,
+          routeEngine: "/expandBubble",
+        ),
+      ),
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +58,10 @@ class MainPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-
           children: [
             TextButton(
-              onPressed: () {
-                print("Open Bubble");
-
-                MethodChannel(
-                  "com.example.pl_bubble/bubble",
-                ).invokeMethod("OPEN_BUBBLE_CHANNEL", "openBubble");
+              onPressed: () async {
+                await AndroidBubbleService().showBubble();
               },
               child: const Text('Open Bubble'),
             ),

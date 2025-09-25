@@ -51,7 +51,6 @@ class AndroidBubbleService implements BubbleService {
 
     try {
       await BubbleChannel.initialBubbleService(config);
-      // Set up event stream from native side
 
       _isInitialized = true;
     } catch (e) {
@@ -112,6 +111,30 @@ class AndroidBubbleService implements BubbleService {
       throw BubbleException(
         '$kBubbleErrorHead expand bubble: $e',
         'EXPAND_BUBBLE_ERROR',
+      );
+    }
+  }
+
+  @override
+  Future<void> closeExpandBubble() async {
+    try {
+      await BubbleChannel.closeExpandBubble();
+    } catch (e) {
+      throw BubbleException(
+        '$kBubbleErrorHead close expand bubble: $e',
+        'CLOSE_EXPAND_BUBBLE_ERROR',
+      );
+    }
+  }
+
+  @override
+  Future<void> hideExpandBubble() async {
+    try {
+      await BubbleChannel.hideExandBubble();
+    } catch (e) {
+      throw BubbleException(
+        '$kBubbleErrorHead hide expand bubble: $e',
+        'HIDE_EXPAND_BUBBLE_ERROR',
       );
     }
   }

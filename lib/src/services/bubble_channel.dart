@@ -5,18 +5,26 @@ import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
 import '../exceptions/bubble_exception.dart';
 
-/// Method channel for communicating with native bubble implementation
+// Method channel for communicating with native bubble implementation
 class BubbleChannel {
   static const MethodChannel _channel = MethodChannel(
     'com.example.pl_bubble/bubble',
   );
 
+  static const String _updateConfigMethod = 'updateConfig';
+
+  // Bubble methods
   static const String _showBubbleMethod = 'showBubble';
   static const String _hideBubbleMethod = 'hideBubble';
-  static const String _expandBubbleMethod = 'expandBubble';
   static const String _moveBubbleMethod = 'moveBubble';
-  static const String _updateConfigMethod = 'updateConfig';
   static const String _closeBubbleMethod = 'closeBubble';
+
+  // Expand bubble methods
+  static const String _expandBubbleMethod = 'expandBubble';
+  static const String _closeExpandBubbleMethod = 'closeExpandBubble';
+  static const String _hideExandBubbleMethod = 'hideExandBubble';
+
+  // Permission methods
   static const String _hasPermissionMethod = 'hasOverlayPermission';
   static const String _requestPermissionMethod = 'requestOverlayPermission';
   static const String _getStateMethod = 'getBubbleState';
@@ -33,7 +41,8 @@ class BubbleChannel {
     }
   }
 
-  /// Show bubble with configuration
+  ///[BubbleChannel]
+  // Show bubble with configuration
   static Future<void> showBubble() async {
     try {
       await _channel.invokeMethod(_showBubbleMethod);
@@ -42,7 +51,7 @@ class BubbleChannel {
     }
   }
 
-  /// Hide the bubble
+  // Hide the bubble
   static Future<void> hideBubble() async {
     try {
       await _channel.invokeMethod(_hideBubbleMethod);
@@ -51,16 +60,7 @@ class BubbleChannel {
     }
   }
 
-  /// Expand the bubble
-  static Future<void> expandBubble() async {
-    try {
-      await _channel.invokeMethod(_expandBubbleMethod);
-    } on PlatformException catch (e) {
-      throw BubbleException('Failed to expand bubble: ${e.message}', e.code);
-    }
-  }
-
-  /// Move bubble to specific position
+  // Move bubble to specific position
   static Future<void> moveBubble(BubblePosition position) async {
     try {
       await _channel.invokeMethod(_moveBubbleMethod, position.toJson());
@@ -69,16 +69,7 @@ class BubbleChannel {
     }
   }
 
-  /// Update bubble configuration
-  static Future<void> updateConfig(BubbleConfig config) async {
-    try {
-      await _channel.invokeMethod(_updateConfigMethod, config.toJson());
-    } on PlatformException catch (e) {
-      throw BubbleException('Failed to update config: ${e.message}', e.code);
-    }
-  }
-
-  /// Close the bubble completely
+  // Close the bubble completely
   static Future<void> closeBubble() async {
     try {
       await _channel.invokeMethod(_closeBubbleMethod);
@@ -87,7 +78,52 @@ class BubbleChannel {
     }
   }
 
-  /// Check if overlay permission is granted
+  ///[BubbleChannel]--------------------------------
+
+  // Update bubble configuration
+  static Future<void> updateConfig(BubbleConfig config) async {
+    try {
+      await _channel.invokeMethod(_updateConfigMethod, config.toJson());
+    } on PlatformException catch (e) {
+      throw BubbleException('Failed to update config: ${e.message}', e.code);
+    }
+  }
+
+  ///[ExpandBubbleChannel]
+
+  // Expand the bubble
+  static Future<void> expandBubble() async {
+    try {
+      await _channel.invokeMethod(_expandBubbleMethod);
+    } on PlatformException catch (e) {
+      throw BubbleException('Failed to expand bubble: ${e.message}', e.code);
+    }
+  }
+
+  static Future<void> closeExpandBubble() async {
+    try {
+      await _channel.invokeMethod(_closeExpandBubbleMethod);
+    } on PlatformException catch (e) {
+      throw BubbleException(
+        'Failed to close expand bubble: ${e.message}',
+        e.code,
+      );
+    }
+  }
+
+  static Future<void> hideExandBubble() async {
+    try {
+      await _channel.invokeMethod(_hideExandBubbleMethod);
+    } on PlatformException catch (e) {
+      throw BubbleException(
+        'Failed to hide expand bubble: ${e.message}',
+        e.code,
+      );
+    }
+  }
+
+  ///[PermissionChannel]
+  // Check if overlay permission is granted
   static Future<bool> hasOverlayPermission() async {
     try {
       final result = await _channel.invokeMethod(_hasPermissionMethod);
@@ -97,7 +133,7 @@ class BubbleChannel {
     }
   }
 
-  /// Request overlay permission
+  // Request overlay permission
   static Future<bool> requestOverlayPermission() async {
     try {
       final result = await _channel.invokeMethod(_requestPermissionMethod);
@@ -110,7 +146,7 @@ class BubbleChannel {
     }
   }
 
-  /// Get current bubble state
+  // Get current bubble state
   static Future<BubbleState> getBubbleState() async {
     try {
       final result = await _channel.invokeMethod(_getStateMethod);
@@ -123,7 +159,7 @@ class BubbleChannel {
     }
   }
 
-  /// Set up event stream from native side
+  // Set up event stream from native side
   static Stream<BubbleEvent> setupEventStream() {
     const EventChannel eventChannel = EventChannel(
       'com.example.pl_bubble/bubble_events',
@@ -137,7 +173,7 @@ class BubbleChannel {
     });
   }
 
-  /// Parse event data from native side
+  // Parse event data from native side
   static BubbleEvent _parseEvent(Map<String, dynamic> eventData) {
     final eventType = eventData['eventType'] as String? ?? '';
     final timestamp = DateTime.fromMillisecondsSinceEpoch(

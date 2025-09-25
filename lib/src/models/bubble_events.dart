@@ -127,7 +127,7 @@ class BubbleErrorEvent extends BubbleEvent {
 
 /// Event listener interface for bubble events
 abstract class BubbleEventListener {
-  void onVisibilityChange(bool isVisible);
+  void onVisibilityChange(bool isVisible);    
   void onExpand(bool isExpanded);
   void onClose();
   void onAnimateToEdge(BubbleEdgeSide targetEdge);

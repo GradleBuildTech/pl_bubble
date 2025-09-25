@@ -1,7 +1,5 @@
 package com.example.pl_bubble
 
-import android.graphics.Point
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
@@ -11,17 +9,16 @@ import com.example.pl_bubble.bubble.notification.NotificationHelper
 import com.example.pl_bubble.bubble.service.BaseBubbleService
 import com.example.pl_bubble.bubble.service.BuBubbleBuilder
 import com.example.pl_bubble.bubble.utils.BubbleEdgeSide
+import com.example.pl_bubble.frame.FlutterFrame
+import com.example.pl_bubble.models.BubbleConfig
 import com.example.pl_bubble.utils.BUBBLE_NOTIFICATION_ID
 import com.example.pl_bubble.utils.CHANNEL_NAME
 import com.example.pl_bubble.utils.NOTIFICATION_CHANNEL_ID
-import io.flutter.embedding.android.FlutterView
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.dart.DartExecutor
 
-class ActiveBubbleService: BaseBubbleService() {
+class ActiveBubbleService constructor(
+    val bubbleConfig: BubbleConfig
+): BaseBubbleService() {
     private lateinit var bubbleNotificationBuilder: NotificationCompat.Builder
-    private lateinit var flutterEngine: FlutterEngine
-    private lateinit var flutterView: FlutterView
 
     private val notificationHelper: NotificationHelper
         get() = NotificationHelper(this, NOTIFICATION_CHANNEL_ID, CHANNEL_NAME)
@@ -29,7 +26,9 @@ class ActiveBubbleService: BaseBubbleService() {
     override fun onCreate() {
         super.onCreate()
         startNotificationForeground()
-        showBubble()
+        if(bubbleConfig.showBubbleWhenInit) {
+            showBubble()
+        }
     }
 
     override fun configBubble(): BuBubbleBuilder {
@@ -41,42 +40,22 @@ class ActiveBubbleService: BaseBubbleService() {
         }
 
         ///Add click to bubble
-
         val bubbleView =  ImageView(this).apply {
             setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_flutter)).apply {
                 layoutParams = ViewGroup.LayoutParams(150, 150)
             }
         }
-        bubbleView.setOnClickListener {
-            Log.d("ActiveBubbleService", "Bubble clicked!")
-            showExpandBubble()
-        }
 
-        flutterEngine = FlutterEngine(this)
-        flutterEngine.navigationChannel.setInitialRoute("/expandBubble") // optional: set Flutter route
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
+        val expandView = if(bubbleConfig.expandBubbleConfig != null) FlutterFrame.createExpandFrameFromConfig(
+            expandBubbleConfig = bubbleConfig.expandBubbleConfig,
+            context = this
+        ) else null
 
-        // Create FlutterView and attach to engine
-        flutterView = FlutterView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                400
-            )
-            attachToFlutterEngine(flutterEngine)
-        }
 
-        return BuBubbleBuilder(this)
+        val builder =  BuBubbleBuilder(this)
             .bubbleView(bubbleView)
-            .expandView(flutterView)
             .closeView(closeBubbleView)
-            .bubbleStartPoint(Point(0, 400))
-            .bubbleForceDragging(true)
-            .bubbleAnimateToEdgeEnabled(true)
-            .bubbleDistanceToClose(200)
-            .bubbleCloseBottomDist(100)
-            .bubbleAnimatedClose(false)
+            .fromBubbleConfig(bubbleConfig)
             .bubbleListener(
                 object : BubbleListener {
                     override fun onFingerDown(x: Float, y: Float) { }
@@ -84,6 +63,12 @@ class ActiveBubbleService: BaseBubbleService() {
                     override fun onFingerUp(x: Float, y: Float) { }
                 }
             )
+
+        if(expandView != null) {
+            builder.expandView(expandView)
+        }
+
+        return builder
     }
 
     override fun startNotificationForeground() {

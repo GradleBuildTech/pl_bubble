@@ -29,6 +29,12 @@ abstract class BubbleService {
   /// Expand the bubble
   Future<void> expandBubble();
 
+  /// Close the expand bubble
+  Future<void> closeExpandBubble();
+
+  /// Hide the expand bubble
+  Future<void> hideExpandBubble();
+
   /// Move bubble to specific position
   Future<void> moveBubble(BubblePosition position);
 

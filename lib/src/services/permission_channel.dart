@@ -59,7 +59,6 @@ class PermissionChannel {
   }
 
   /// Request notification permission
-
   static Future<bool> requestNotificationPermission() async {
     try {
       final result = await _channel.invokeMethod(

@@ -1,24 +1,28 @@
 package com.example.pl_bubble
 
-import android.content.Intent
-import android.util.Log
-import com.example.pl_bubble.bubble.utils.ext.isServiceRunningInForeground
+import com.example.pl_bubble.utils.ChannelConstant
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+
+    /// Singleton instance of ChannelService to handle method calls from Flutter.
+    private val channelService: ChannelService = ChannelService.getInstance()
+
+    /// Configures the Flutter engine and sets up a MethodChannel to communicate with Flutter.
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "com.example.pl_bubble/bubble"
+            ChannelConstant.SERVICE_CHANNEL
         ).setMethodCallHandler { call, result ->
-            Log.d("MainActivity", "Method call received: ${call.method}")
-            if(!context.isServiceRunningInForeground(ActiveBubbleService::class.java)) {
-                val intent = Intent(context, ActiveBubbleService::class.java)
-                context.startForegroundService(intent)
-            }
+            channelService.doAction(
+                context = this,
+                method = call.method,
+                argument = call.arguments ?: Any(),
+                result = result
+            )
         }
     }
 }
