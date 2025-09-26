@@ -26,7 +26,11 @@ data class BubbleConfig(
     // Optional configuration for expanding the bubble
     val expandBubbleConfig: ExpandBubbleConfig?,
 
+    // Whether to show the bubble immediately upon initialization
     val showBubbleWhenInit: Boolean,
+
+    // Optional configuration for notifications related to the bubble
+    val notificationConfig: NotificationConfig?
 )
 
 // Extension function to convert a Map to a BubbleConfig object
@@ -45,6 +49,8 @@ fun Map<*, *>.toBubbleConfig(): BubbleConfig? {
     val showCloseAnimation = this["showCloseAnimation"] as? Boolean ?: return null
     val showBubbleWhenInit = this["showBubbleWhenInit"] as? Boolean ?: return null
     val expandBubbleConfig = (this["expandBubbleConfig"] as? Map<*, *>)?.toExpandBubbleConfig()
+    val notificationConfig = (this["notificationConfig"] as? Map<*, *>)?.toNotificationConfig()
+
 
     return BubbleConfig(
         width = width,
@@ -58,5 +64,6 @@ fun Map<*, *>.toBubbleConfig(): BubbleConfig? {
         showCloseAnimation = showCloseAnimation,
         expandBubbleConfig = expandBubbleConfig,
         showBubbleWhenInit = showBubbleWhenInit,
+        notificationConfig = notificationConfig
     )
 }

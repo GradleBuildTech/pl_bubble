@@ -11,6 +11,10 @@ class BubbleChannel {
     'com.example.pl_bubble/bubble',
   );
 
+  static const EventChannel _initialBubbleServiceChannel = EventChannel(
+    'com.example.pl_bubble/initialBubbleService',
+  );
+
   static const String _updateConfigMethod = 'updateConfig';
 
   // Bubble methods
@@ -28,17 +32,17 @@ class BubbleChannel {
   static const String _hasPermissionMethod = 'hasOverlayPermission';
   static const String _requestPermissionMethod = 'requestOverlayPermission';
   static const String _getStateMethod = 'getBubbleState';
-  static const String _initialBubbleServiceMethod = 'initialBubbleService';
 
-  static Future<void> initialBubbleService(BubbleConfig config) async {
-    try {
-      await _channel.invokeMethod(_initialBubbleServiceMethod, config.toJson());
-    } on PlatformException catch (e) {
-      throw BubbleException(
-        'Failed to initial bubble service: ${e.message}',
-        e.code,
-      );
-    }
+  // Initial bubble service method
+  static Stream<BubbleEvent> initialBubbleService(BubbleConfig config) {
+    return _initialBubbleServiceChannel
+        .receiveBroadcastStream(config.toJson())
+        .map((dynamic event) {
+          if (event is Map<String, dynamic>) {
+            return _parseEvent(event);
+          }
+          throw BubbleException('Invalid event data received', 'INVALID_EVENT');
+        });
   }
 
   ///[BubbleChannel]

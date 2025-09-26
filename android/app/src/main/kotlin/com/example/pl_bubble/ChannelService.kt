@@ -34,7 +34,8 @@ class ChannelService private constructor(){
         if(argument !is Map<*, *>) return
         val bubbleConfig = argument.toBubbleConfig()
         if(bubbleConfig == null) return
-        activeBubbleService = ActiveBubbleService(bubbleConfig)
+        ServiceInstance.bubbleConfig = bubbleConfig
+        activeBubbleService = ActiveBubbleService()
     }
 
     // Handles method calls from Flutter and performs corresponding actions.

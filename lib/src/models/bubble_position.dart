@@ -35,8 +35,11 @@ enum BubbleEdgeSide { left, right, top, bottom, none }
 /// Bubble state information
 class BubbleState {
   final BubblePosition position;
+
   final BubbleEdgeSide edgeSide;
+
   final bool isExpanded;
+
   final bool isVisible;
 
   const BubbleState({

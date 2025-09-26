@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'bubble_position.dart';
 import 'expand_bubble_config.dart';
+import 'notification_config.dart';
 
 /// Configuration class for bubble appearance and behavior
 class BubbleConfig {
@@ -25,11 +26,17 @@ class BubbleConfig {
   /// Whether to show close animation
   final bool showCloseAnimation;
 
+  /// Whether to show the bubble when initializing
   final bool showBubbleWhenInit;
 
+  /// Configuration for the expanded bubble
   final ExpandBubbleConfig? expandBubbleConfig;
 
+  /// Configuration for the notification
+  final NotificationConfig? notificationConfig;
+
   const BubbleConfig({
+    this.notificationConfig,
     this.showBubbleWhenInit = true,
     this.startPosition = const BubblePosition(x: 0, y: 0),
     this.bubbleSize = const Size(60, 60),
@@ -53,8 +60,10 @@ class BubbleConfig {
     bool? showCloseAnimation,
     ExpandBubbleConfig? expandBubbleConfig,
     bool? showBubbleWhenInit,
+    NotificationConfig? notificationConfig,
   }) {
     return BubbleConfig(
+      notificationConfig: notificationConfig ?? this.notificationConfig,
       showBubbleWhenInit: showBubbleWhenInit ?? this.showBubbleWhenInit,
       startPosition: startPosition ?? this.startPosition,
       bubbleSize: bubbleSize ?? this.bubbleSize,
@@ -70,6 +79,7 @@ class BubbleConfig {
   /// Convert to JSON for platform communication
   Map<String, dynamic> toJson() {
     return {
+      'notificationConfig': notificationConfig?.toJson(),
       'startPosition': startPosition.toJson(),
       'bubbleSize': {'width': bubbleSize.width, 'height': bubbleSize.height},
       'showBubbleWhenInit': showBubbleWhenInit,
@@ -85,6 +95,9 @@ class BubbleConfig {
   /// Create from JSON
   factory BubbleConfig.fromJson(Map<String, dynamic> json) {
     return BubbleConfig(
+      notificationConfig: json['notificationConfig'] != null
+          ? NotificationConfig.fromJson(json['notificationConfig'])
+          : null,
       startPosition: BubblePosition.fromJson(json['startPosition']),
       bubbleSize: Size(
         json['bubbleSize']['width']?.toDouble() ?? 60.0,

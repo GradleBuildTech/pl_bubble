@@ -27,12 +27,16 @@ class AndroidBubbleService implements BubbleService {
     position: BubblePosition(x: 0, y: 0),
   );
 
+  //Whether the bubble is visible
   bool _isVisible = false;
 
+  //Whether the bubble is expanded
   bool _isExpanded = false;
 
+  //Whether the bubble is initialized
   bool _isInitialized = false;
 
+  //Stream of bubble events, this is the stream that will be used to listen to the bubble events
   @override
   Stream<BubbleEvent> get eventStream => _eventController.stream;
 
@@ -50,7 +54,7 @@ class AndroidBubbleService implements BubbleService {
     if (_isInitialized) return;
 
     try {
-      await BubbleChannel.initialBubbleService(config);
+      BubbleChannel.initialBubbleService(config).listen(_handleEvent);
 
       _isInitialized = true;
     } catch (e) {
