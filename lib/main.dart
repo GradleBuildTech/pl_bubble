@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pl_bubble/src/utils/logger.dart';
 
 import 'pl_bubble.dart';
 
@@ -29,10 +30,12 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage> implements BubbleEventListener {
   @override
   void initState() {
-    AndroidBubbleService().initialize(
+    super.initState();
+
+    AndroidBubbleService.instance.initialize(
       BubbleConfig(
         startPosition: BubblePosition(x: 0, y: 0),
         bubbleSize: Size(60, 60),
@@ -46,7 +49,18 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
-    super.initState();
+
+    AndroidBubbleService.instance.eventStream.listen((event) {
+      switch (event) {
+        case BubbleClickEvent():
+          AndroidBubbleService.instance.expandBubble();
+
+        default:
+          Logger.d("Unknown event: ${event.runtimeType}", "Unknown event");
+      }
+    });
+
+    AndroidBubbleService.instance.addEventListener(this);
   }
 
   @override
@@ -69,6 +83,29 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void onAnimateToEdge(BubbleEdgeSide targetEdge) {}
+
+  @override
+  void onClose() {
+    // TODO: implement onClose
+  }
+
+  @override
+  void onExpand(bool isExpanded) {
+    // TODO: implement onExpand
+  }
+
+  @override
+  void onStateChange(BubbleState previousState, BubbleState newState) {
+    // TODO: implement onStateChange
+  }
+
+  @override
+  void onVisibilityChange(bool isVisible) {
+    // TODO: implement onVisibilityChange
   }
 }
 

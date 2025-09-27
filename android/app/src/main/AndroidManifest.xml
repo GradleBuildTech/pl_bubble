@@ -12,7 +12,7 @@
         android:icon="@mipmap/ic_launcher">
 
         <service
-            android:name=".ActiveBubbleService"
+            android:name=".BubbleManager"
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"

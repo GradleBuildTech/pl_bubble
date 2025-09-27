@@ -4,6 +4,7 @@ import '../models/bubble_config.dart';
 import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
 import '../exceptions/bubble_exception.dart';
+import '../models/bubble_event_data.dart';
 
 // Method channel for communicating with native bubble implementation
 class BubbleChannel {
@@ -12,7 +13,7 @@ class BubbleChannel {
   );
 
   static const EventChannel _initialBubbleServiceChannel = EventChannel(
-    'com.example.pl_bubble/initialBubbleService',
+    'initialBubbleService',
   );
 
   static const String _updateConfigMethod = 'updateConfig';
@@ -39,7 +40,7 @@ class BubbleChannel {
         .receiveBroadcastStream(config.toJson())
         .map((dynamic event) {
           if (event is Map<String, dynamic>) {
-            return _parseEvent(event);
+            return BubbleEventData.fromJson(event).event;
           }
           throw BubbleException('Invalid event data received', 'INVALID_EVENT');
         });
@@ -96,9 +97,9 @@ class BubbleChannel {
   ///[ExpandBubbleChannel]
 
   // Expand the bubble
-  static Future<void> expandBubble() async {
+  static Future<void> expandBubble({bool isRemoveBubble = false}) async {
     try {
-      await _channel.invokeMethod(_expandBubbleMethod);
+      await _channel.invokeMethod(_expandBubbleMethod, isRemoveBubble);
     } on PlatformException catch (e) {
       throw BubbleException('Failed to expand bubble: ${e.message}', e.code);
     }
@@ -171,93 +172,11 @@ class BubbleChannel {
 
     return eventChannel.receiveBroadcastStream().map((dynamic event) {
       if (event is Map<String, dynamic>) {
-        return _parseEvent(event);
+        return BubbleEventData.fromJson(event).event;
       }
       throw BubbleException('Invalid event data received', 'INVALID_EVENT');
     });
   }
 
   // Parse event data from native side
-  static BubbleEvent _parseEvent(Map<String, dynamic> eventData) {
-    final eventType = eventData['eventType'] as String? ?? '';
-    final timestamp = DateTime.fromMillisecondsSinceEpoch(
-      eventData['timestamp'] as int? ?? DateTime.now().millisecondsSinceEpoch,
-    );
-    final position = BubblePosition.fromJson(
-      Map<String, dynamic>.from(eventData['position'] ?? {}),
-    );
-
-    switch (eventType) {
-      case 'touchStart':
-        return BubbleTouchStartEvent(timestamp: timestamp, position: position);
-      case 'touchMove':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubbleTouchMoveEvent(
-          timestamp: timestamp,
-          position: position,
-          previousPosition: BubblePosition.fromJson(
-            data['previousPosition'] ?? {},
-          ),
-          deltaX: data['deltaX']?.toDouble() ?? 0.0,
-          deltaY: data['deltaY']?.toDouble() ?? 0.0,
-        );
-      case 'touchEnd':
-        return BubbleTouchEndEvent(timestamp: timestamp, position: position);
-      case 'click':
-        return BubbleClickEvent(timestamp: timestamp, position: position);
-      case 'expand':
-        return BubbleExpandEvent(timestamp: timestamp, position: position);
-      case 'collapse':
-        return BubbleCollapseEvent(timestamp: timestamp, position: position);
-      case 'close':
-        return BubbleCloseEvent(timestamp: timestamp, position: position);
-      case 'animateToEdge':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubbleAnimateToEdgeEvent(
-          timestamp: timestamp,
-          position: position,
-          targetEdge: BubbleEdgeSide.values.firstWhere(
-            (e) => e.name == data['targetEdge'],
-            orElse: () => BubbleEdgeSide.none,
-          ),
-        );
-      case 'stateChange':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubbleStateChangeEvent(
-          timestamp: timestamp,
-          position: position,
-          previousState: BubbleState.fromJson(data['previousState'] ?? {}),
-          newState: BubbleState.fromJson(data['newState'] ?? {}),
-        );
-      case 'visibilityChange':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubbleVisibilityChangeEvent(
-          timestamp: timestamp,
-          position: position,
-          isVisible: data['isVisible'] as bool? ?? false,
-        );
-      case 'permissionRequest':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubblePermissionRequestEvent(
-          timestamp: timestamp,
-          position: position,
-          permission: data['permission'] as String? ?? '',
-          isGranted: data['isGranted'] as bool? ?? false,
-        );
-      case 'error':
-        final data = eventData['data'] as Map<String, dynamic>? ?? {};
-        return BubbleErrorEvent(
-          timestamp: timestamp,
-          position: position,
-          errorMessage: data['errorMessage'] as String? ?? 'Unknown error',
-          errorCode: data['errorCode'] as String?,
-          errorDetails: data['errorDetails'],
-        );
-      default:
-        throw BubbleException(
-          'Unknown event type: $eventType',
-          'UNKNOWN_EVENT',
-        );
-    }
-  }
 }

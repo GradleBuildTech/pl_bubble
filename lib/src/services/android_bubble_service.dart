@@ -101,9 +101,9 @@ class AndroidBubbleService implements BubbleService {
   }
 
   @override
-  Future<void> expandBubble() async {
+  Future<void> expandBubble({bool isRemoveBubble = false}) async {
     try {
-      await BubbleChannel.expandBubble();
+      await BubbleChannel.expandBubble(isRemoveBubble: isRemoveBubble);
       _isExpanded = true;
       _currentState = _currentState.copyWith(isExpanded: true);
 

@@ -27,7 +27,7 @@ abstract class BubbleService {
   Future<void> hideBubble();
 
   /// Expand the bubble
-  Future<void> expandBubble();
+  Future<void> expandBubble({bool isRemoveBubble = false});
 
   /// Close the expand bubble
   Future<void> closeExpandBubble();
