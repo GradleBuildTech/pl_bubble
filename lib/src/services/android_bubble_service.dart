@@ -3,6 +3,7 @@ import '../models/bubble_config.dart';
 import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
 import '../exceptions/bubble_exception.dart';
+import '../utils/logger.dart';
 import 'bubble_channel.dart';
 import 'bubble_service.dart';
 
@@ -77,6 +78,7 @@ class AndroidBubbleService implements BubbleService {
         listener.onVisibilityChange(true);
       }
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead show bubble: $e',
         'SHOW_BUBBLE_ERROR',
@@ -96,6 +98,7 @@ class AndroidBubbleService implements BubbleService {
         listener.onVisibilityChange(false);
       }
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException('Failed to hide bubble: $e', 'HIDE_BUBBLE_ERROR');
     }
   }
@@ -112,6 +115,7 @@ class AndroidBubbleService implements BubbleService {
         listener.onExpand(true);
       }
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead expand bubble: $e',
         'EXPAND_BUBBLE_ERROR',
@@ -124,6 +128,7 @@ class AndroidBubbleService implements BubbleService {
     try {
       await BubbleChannel.closeExpandBubble();
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead close expand bubble: $e',
         'CLOSE_EXPAND_BUBBLE_ERROR',
@@ -136,6 +141,7 @@ class AndroidBubbleService implements BubbleService {
     try {
       await BubbleChannel.hideExandBubble();
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead hide expand bubble: $e',
         'HIDE_EXPAND_BUBBLE_ERROR',
@@ -149,6 +155,7 @@ class AndroidBubbleService implements BubbleService {
       await BubbleChannel.moveBubble(position);
       _currentState = _currentState.copyWith(position: position);
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead move bubble: $e',
         'MOVE_BUBBLE_ERROR',
@@ -161,6 +168,7 @@ class AndroidBubbleService implements BubbleService {
     try {
       await BubbleChannel.updateConfig(config);
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead update config: $e',
         'UPDATE_CONFIG_ERROR',
@@ -184,6 +192,7 @@ class AndroidBubbleService implements BubbleService {
         listener.onClose();
       }
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead close bubble: $e',
         'CLOSE_BUBBLE_ERROR',
@@ -196,6 +205,7 @@ class AndroidBubbleService implements BubbleService {
     try {
       return await BubbleChannel.hasOverlayPermission();
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead check permission: $e',
         'PERMISSION_CHECK_ERROR',
@@ -208,6 +218,7 @@ class AndroidBubbleService implements BubbleService {
     try {
       return await BubbleChannel.requestOverlayPermission();
     } catch (e) {
+      Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
         '$kBubbleErrorHead request permission: $e',
         'PERMISSION_REQUEST_ERROR',

@@ -70,18 +70,36 @@ abstract class BaseBubbleService : Service() {
     override fun onBind(p0: Intent?): IBinder? = null
 
     /**
+     * Handle service start with intent arguments
+     */
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Handle intent arguments if needed
+        intent?.let { handleIntentArguments(it) }
+        return START_STICKY
+    }
+
+    /**
+     * Handle intent arguments - override in subclasses to process specific arguments
+     */
+    protected open fun handleIntentArguments(intent: Intent) {
+        // Default implementation - can be overridden in subclasses
+    }
+
+    /**
      * 🎉 Bubble configuration
      */
     override fun onCreate() {
         super.onCreate()
+
         serviceScope = CoroutineScope(Dispatchers.Main)
         if (canDrawOverlays().not()) {
             throw IllegalStateException(
                 "You must enable 'Draw over other apps' permission to use this service."
             )
         } else {
+            val configBubble = configBubble()
             sez.with(this.applicationContext)
-            onCreateBubble(configBubble())
+            onCreateBubble(configBubble)
             this._serviceInteraction = object : ServiceInteraction {
                 override fun requestStop() {
                     stopSelf()
@@ -95,7 +113,8 @@ abstract class BaseBubbleService : Service() {
         if (newConfig.isScreenRound) {
             sez.refresh()
         }
-        onCreateBubble(configBubble())
+        val configBubble = configBubble()
+        onCreateBubble(configBubble)
     }
 
     override fun onDestroy() {

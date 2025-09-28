@@ -16,6 +16,13 @@ final class BubbleTouchMoveEvent extends BubbleEvent {
   BubbleTouchMoveEvent({required this.deltaX, required this.deltaY});
 }
 
+/// Event when bubble encounters an error
+final class BubbleErrorEvent extends BubbleEvent {
+  final String errorMessage;
+
+  BubbleErrorEvent({required this.errorMessage});
+}
+
 /// Event when user stops touching the bubble
 final class BubbleTouchEndEvent extends BubbleEvent {}
 
@@ -61,19 +68,6 @@ final class BubblePermissionRequestEvent extends BubbleEvent {
   BubblePermissionRequestEvent({
     required this.permission,
     required this.isGranted,
-  });
-}
-
-/// Event when bubble encounters an error
-class BubbleErrorEvent extends BubbleEvent {
-  final String errorMessage;
-  final String? errorCode;
-  final dynamic errorDetails;
-
-  BubbleErrorEvent({
-    required this.errorMessage,
-    this.errorCode,
-    this.errorDetails,
   });
 }
 

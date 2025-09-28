@@ -41,6 +41,8 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
         bubbleSize: Size(60, 60),
         animateToEdge: true,
         isDraggable: true,
+        showBubbleWhenInit: false,
+
         closeDistance: 200.0,
         expandBubbleConfig: ExpandBubbleConfig(
           width: BubbleConstants.matchParent.toDouble(),
@@ -54,6 +56,9 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
       switch (event) {
         case BubbleClickEvent():
           AndroidBubbleService.instance.expandBubble();
+
+        case BubbleErrorEvent():
+          Logger.d('MainPage', event.errorMessage);
 
         default:
           Logger.d("Unknown event: ${event.runtimeType}", "Unknown event");
@@ -75,7 +80,11 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
           children: [
             TextButton(
               onPressed: () async {
-                await AndroidBubbleService().showBubble();
+                try {
+                  await AndroidBubbleService.instance.showBubble();
+                } catch (e) {
+                  Logger.d('MainPage', e.toString());
+                }
               },
               child: const Text('Open Bubble'),
             ),

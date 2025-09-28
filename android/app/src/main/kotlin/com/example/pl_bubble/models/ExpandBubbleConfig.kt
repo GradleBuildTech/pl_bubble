@@ -1,4 +1,9 @@
 package com.example.pl_bubble.models
+
+import android.os.Parcel
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 /**
  * Configuration data class for expanding bubble settings.
  *
@@ -6,11 +11,22 @@ package com.example.pl_bubble.models
  * @property height The height of the expanded bubble.
  * @property routeEngine The routing engine to be used.
  */
+@Parcelize
 data class ExpandBubbleConfig(
     val width: Double,
     val height: Double,
     val routeEngine: String
-)
+) : Parcelable {
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeDouble(width)
+        dest.writeDouble(height)
+        dest.writeString(routeEngine)
+    }
+}
 
 // Extension function to convert a Map to an ExpandBubbleConfig object
 fun Map<*, *>.toExpandBubbleConfig(): ExpandBubbleConfig? {
@@ -22,5 +38,14 @@ fun Map<*, *>.toExpandBubbleConfig(): ExpandBubbleConfig? {
         width = width,
         height = height,
         routeEngine = routeEngine
+    )
+}
+
+// Extension function to convert an ExpandBubbleConfig object to a Map
+fun ExpandBubbleConfig.toMap(): Map<String, Any> {
+    return mapOf(
+        "width" to width,
+        "height" to height,
+        "routeEngine" to routeEngine
     )
 }

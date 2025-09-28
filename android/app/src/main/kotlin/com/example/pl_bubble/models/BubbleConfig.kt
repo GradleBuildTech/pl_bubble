@@ -1,6 +1,11 @@
 package com.example.pl_bubble.models
 
+import android.os.Parcel
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 // Configuration data class for a floating bubble UI component
+@Parcelize
 data class BubbleConfig(
     // Unique identifier for the bubble
     val width: Double,
@@ -31,7 +36,26 @@ data class BubbleConfig(
 
     // Optional configuration for notifications related to the bubble
     val notificationConfig: NotificationConfig?
-)
+) : Parcelable {
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeDouble(width)
+        dest.writeDouble(height)
+        dest.writeDouble(startX)
+        dest.writeDouble(startY)
+        dest.writeByte(if (animateToEdge) 1 else 0)
+        dest.writeByte(if (isDraggable) 1 else 0)
+        dest.writeDouble(closeDistance)
+        dest.writeDouble(closeBottomDistance)
+        dest.writeByte(if (showCloseAnimation) 1 else 0)
+        dest.writeParcelable(expandBubbleConfig, flags)
+        dest.writeByte(if (showBubbleWhenInit) 1 else 0)
+        dest.writeParcelable(notificationConfig, flags)
+    }
+}
 
 // Extension function to convert a Map to a BubbleConfig object
 fun Map<*, *>.toBubbleConfig(): BubbleConfig? {
@@ -67,3 +91,25 @@ fun Map<*, *>.toBubbleConfig(): BubbleConfig? {
         notificationConfig = notificationConfig
     )
 }
+
+// Extension function to convert a BubbleConfig object to a Map
+fun BubbleConfig.toMap(): Map<String, Any?> {
+    return mapOf(
+        "width" to width,
+        "height" to height,
+        "startPosition" to mapOf(
+            "x" to startX,
+            "y" to startY
+        ),
+        "animateToEdge" to animateToEdge,
+        "isDraggable" to isDraggable,
+        "closeDistance" to closeDistance,
+        "closeBottomDistance" to closeBottomDistance,
+        "showCloseAnimation" to showCloseAnimation,
+        "expandBubbleConfig" to expandBubbleConfig?.toMap(),
+        "showBubbleWhenInit" to showBubbleWhenInit,
+        "notificationConfig" to notificationConfig?.toMap()
+    )
+}
+
+

@@ -11,8 +11,6 @@ class BubbleException implements Exception {
     this.details,
     this.stackTrace,
   ]);
-
-  /// Create a copy with modified values
   BubbleException copyWith({
     String? message,
     String? code,

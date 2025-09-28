@@ -1,6 +1,7 @@
 package com.example.pl_bubble
 
 import android.content.Context
+import android.util.Log
 import com.example.pl_bubble.utils.ChannelConstant
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -11,13 +12,14 @@ import io.flutter.plugin.common.MethodChannel
     * Handles method calls from Flutter and initializes the ActiveBubbleService.
  */
 class ChannelService private constructor(){
-    // To ensure the service is only initialized once.
-    private var isRunning = false
 
     // Instance of the ActiveBubbleService to manage bubble notifications.
     private val  bubbleManager: BubbleManager = BubbleManager.getInstance()
 
     companion object {
+
+        const val TAG = "ChannelService"
+
         @Volatile
         private var INSTANCE: ChannelService? = null
 
@@ -48,10 +50,15 @@ class ChannelService private constructor(){
         method: String,
         argument: Any,
     ) {
-        if(bubbleManager.isServiceInitialized() == false) return
-        when(method)  {
-            ChannelConstant.SHOW_BUBBLE_METHOD -> showBubble()
-            ChannelConstant.EXPAND_BUBBLE_METHOD -> showExpandBubble(argument)
+        try {
+            if(bubbleManager.isServiceInitialized() == false) return
+            when(method)  {
+                ChannelConstant.SHOW_BUBBLE_METHOD -> showBubble()
+                ChannelConstant.EXPAND_BUBBLE_METHOD -> showExpandBubble(argument)
+            }
+        } catch (exception: Exception) {
+            Log.d(TAG, "Error handling method call: ${exception.message}")
+            throw exception
         }
     }
 
@@ -68,12 +75,13 @@ class ChannelService private constructor(){
             )
         }
 
+
         // Setting up EventChannel to send events back to Flutter.
         EventChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             ChannelConstant.INITIAL_BUBBLE_SERVICE_METHOD
         ).setStreamHandler(
-            BubbleEventBridge(bubbleManager)
+            BubbleEventBridge(bubbleManager, context)
         )
     }
 }

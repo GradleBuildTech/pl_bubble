@@ -56,11 +56,9 @@ class BubbleEventData {
           permission: data['permission'] as String? ?? '',
           isGranted: data['isGranted'] as bool? ?? false,
         );
-      case 'error':
+      case 'Error':
         return BubbleErrorEvent(
           errorMessage: data['errorMessage'] as String? ?? 'Unknown error',
-          errorCode: data['errorCode'] as String?,
-          errorDetails: data['errorDetails'],
         );
       default:
         throw BubbleException(

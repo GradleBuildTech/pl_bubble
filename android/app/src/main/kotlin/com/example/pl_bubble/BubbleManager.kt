@@ -11,7 +11,6 @@ import com.example.pl_bubble.bubble.notification.NotificationHelper
 import com.example.pl_bubble.bubble.service.BaseBubbleService
 import com.example.pl_bubble.bubble.service.BuBubbleBuilder
 import com.example.pl_bubble.bubble.utils.BubbleEdgeSide
-import com.example.pl_bubble.bubble.utils.ext.isServiceRunningInForeground
 import com.example.pl_bubble.events.BubbleEvent
 import com.example.pl_bubble.frame.FlutterFrame
 import com.example.pl_bubble.models.BubbleConfig
@@ -25,12 +24,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
     * ActiveBubbleService class to manage bubble lifecycle and interactions.
     * Implements singleton pattern with lazy initialization for reusability.
  */
+@Suppress("DEPRECATION")
 class BubbleManager : BaseBubbleService() {
-
     companion object {
         const val TAG = "ActiveBubbleService"
         const val THROW_EXCEPTION_BUBBLE_CONFIG = "currentConfig is null, please initialize currentConfig before using the service."
-        const val THROW_EXCEPTION_NOT_INITIALIZED = "ActiveBubbleService must be initialized before use. Call initialize() first."
         const val DEFAULT_CONTENT_TEXT = "This is a bubble service notification"
         const val DEFAULT_CONTENT_TITLE = "Bubble Service"
 
@@ -76,66 +74,28 @@ class BubbleManager : BaseBubbleService() {
     private val notificationHelper: NotificationHelper
         get() = NotificationHelper(this, NOTIFICATION_CHANNEL_ID, CHANNEL_NAME)
 
-    /**
-     * Initialize the service with configuration
-     * Can be called multiple times but only initializes once
-     * Subsequent calls with same config are ignored
-     */
-    fun initialize(config: BubbleConfig? = null) {
-        // If already initialized with same config, do nothing
-        if (isInitialized && currentConfig == config) {
-            return
-        }
-        
-        // If initialized with different config, reset and reinitialize
-        if (isInitialized && currentConfig != config) {
-            reset()
-        }
-
-        currentConfig = config
-        isInitialized = true
-        
-        // Start the service if not already running
-        if (!this.isServiceRunningInForeground(BubbleManager::class.java)) {
-            val intent = Intent(this, BubbleManager::class.java)
-            ContextCompat.startForegroundService(this, intent)
-        }
-    }
 
     /**
      * Check if service is initialized
      */
     fun isServiceInitialized(): Boolean = isInitialized
 
+
     /**
      * Reset service to uninitialized state
      */
-    fun reset() {
-        isInitialized = false
-        currentConfig = null
-    }
-
-    /**
-     * Ensure service is initialized before performing operations
-     */
-    private fun ensureInitialized() {
-        if (!isInitialized) {
-            throw IllegalStateException(THROW_EXCEPTION_NOT_INITIALIZED)
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
         startNotificationForeground()
-        if(currentConfig?.showBubbleWhenInit == true) {
-            showBubble()
-        }
+        showBubble()
     }
 
     // Configure the bubble using BuBubbleBuilder
     override fun configBubble(): BuBubbleBuilder {
         try {
-            ensureInitialized()
+
+            currentConfig = ServiceInstance.bubbleConfig
+
             if(currentConfig == null) {
                 throw IllegalStateException(THROW_EXCEPTION_BUBBLE_CONFIG)
             }
@@ -209,6 +169,19 @@ class BubbleManager : BaseBubbleService() {
         } catch (e: Exception) {
             Log.d(TAG, "Error starting foreground notification: ${e.message}")
             throw IllegalStateException("Error starting foreground notification: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Handle intent arguments passed to the service
+     */
+    override fun handleIntentArguments(intent: Intent) {
+        // Get BubbleConfig from ServiceInstance if available
+        val config = intent.getParcelableExtra<BubbleConfig>("BUBBLE_CONFIG")
+        Log.d(TAG, "Received BubbleConfig from intent: $config")
+        if(config != null) {
+            currentConfig = config
+            isInitialized = true
         }
     }
 

@@ -53,6 +53,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     implementation("io.github.torrydo:screen-easy:0.1.0")
+
+    implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:1.9.10")
 }
 
 flutter {

@@ -22,6 +22,8 @@ sealed class BubbleEvent {
 
     // Event to move the bubble to a new position
     data class BubbleMovement(val x: Double, val y: Double) : BubbleEvent()
+
+    data class ErrorEvent(val message: String) : BubbleEvent()
 }
 
 //Bubble event Adaptor
@@ -33,6 +35,7 @@ fun BubbleEvent.toEventString(): String {
         is BubbleEvent.UpdateBubbleState -> "UpdateBubbleState"
         is BubbleEvent.OnClickBubble -> "OnClickBubble"
         is BubbleEvent.BubbleMovement -> "BubbleMovement"
+        is BubbleEvent.ErrorEvent -> "Error"
     }
 }
 
@@ -40,6 +43,7 @@ fun BubbleEvent.toDataMap(): Any? {
     return when(this) {
         is BubbleEvent.UpdateBubbleState -> mapOf("isVisible" to this.isVisible)
         is BubbleEvent.BubbleMovement -> mapOf("x" to this.x, "y" to this.y)
+        is BubbleEvent.ErrorEvent -> mapOf("errorMessage" to this.message)
         else -> null
     }
 }

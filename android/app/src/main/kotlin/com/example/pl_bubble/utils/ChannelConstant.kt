@@ -1,7 +1,7 @@
 package com.example.pl_bubble.utils
 
 object ChannelConstant {
-    const val SERVICE_CHANNEL  = "om.example.pl_bubble/bubble"
+    const val SERVICE_CHANNEL  = "com.example.pl_bubble/bubble"
 
     const val SHOW_BUBBLE_METHOD = "showBubble"
     const val HIDE_BUBBLE_METHOD = "hideBubble"
