@@ -37,7 +37,8 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
 
     AndroidBubbleService.instance.initialize(
       BubbleConfig(
-        startPosition: BubblePosition(x: 0, y: 0),
+        startPosition: BubblePosition(x: 0, y: 300),
+
         bubbleSize: Size(60, 60),
         animateToEdge: true,
         isDraggable: true,
@@ -98,24 +99,16 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
   void onAnimateToEdge(BubbleEdgeSide targetEdge) {}
 
   @override
-  void onClose() {
-    // TODO: implement onClose
-  }
+  void onClose() {}
 
   @override
-  void onExpand(bool isExpanded) {
-    // TODO: implement onExpand
-  }
+  void onExpand(bool isExpanded) {}
 
   @override
-  void onStateChange(BubbleState previousState, BubbleState newState) {
-    // TODO: implement onStateChange
-  }
+  void onStateChange(BubbleState previousState, BubbleState newState) {}
 
   @override
-  void onVisibilityChange(bool isVisible) {
-    // TODO: implement onVisibilityChange
-  }
+  void onVisibilityChange(bool isVisible) {}
 }
 
 class ExpandBubblePage extends StatelessWidget {

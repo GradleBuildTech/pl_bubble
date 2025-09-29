@@ -8,12 +8,13 @@ import com.example.pl_bubble.bubble.utils.ext.isServiceRunningInForeground
 import com.example.pl_bubble.events.BubbleEvent
 import com.example.pl_bubble.events.BubbleSendFormat
 import com.example.pl_bubble.models.toBubbleConfig
-import io.flutter.plugin.common.EventChannel
+import com.example.pl_bubble.utils.ChannelConstant
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 /*
     * Bridge class to handle event channel communication for bubble events
@@ -22,16 +23,26 @@ import kotlinx.coroutines.launch
  */
 class BubbleEventBridge(
     val bubbleManager: BubbleManager,
-    val activityContext: Context
-) : EventChannel.StreamHandler{
+    val activityContext: Context,
+    arguments: Any?,
+    flutterEngine: FlutterEngine,
+) {
+
+    init {
+        listenChange()
+        initialBubbleService(arguments)
+    }
 
     companion object {
         const val TAG = "BubbleEventBridge"
     }
 
-    @Volatile
-    private var eventSink: EventChannel.EventSink? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val channel = MethodChannel(
+        flutterEngine.dartExecutor.binaryMessenger,
+        ChannelConstant.SERVICE_CHANNEL
+    )
 
     // Flag to prevent multiple initializations
     private var isRunning = false
@@ -56,35 +67,29 @@ class BubbleEventBridge(
 
         } catch (exception: Exception) {
             Log.d(TAG, "Error initializing bubble service: ${exception.message}")
-            eventSink?.success(
-                BubbleEvent.ErrorEvent
-                    (message = "Error initializing bubble service: ${exception.message}")
-            )
+            channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = BubbleEvent.ErrorEvent(exception.message ?: "Unknown error")))
             throw exception
         }
     }
 
     // Called when the event channel is listened to from Flutter
-    override fun onListen(
-        arguments: Any?,
-        events: EventChannel.EventSink?
-    ) {
+    private fun listenChange(arguments: Any? = null) {
         if(isRunning) return
-        eventSink = events
+        isRunning = true
 
         initialBubbleService(arguments)
 
-        scope.launch {
-            bubbleManager.listenToEventSink { event ->
-                eventSink?.success(BubbleSendFormat(event = event))
-            }
-        }
+//        scope.launch {
+//            bubbleManager.listenToEventSink { event ->
+//                channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = event))
+//            }
+//        }
 
     }
 
     // Called when the event channel is cancelled from Flutter
-    override fun onCancel(arguments: Any?) {
-        eventSink = null
+    fun onCancel() {
+        isRunning = false
         scope.coroutineContext.cancel()
     }
 

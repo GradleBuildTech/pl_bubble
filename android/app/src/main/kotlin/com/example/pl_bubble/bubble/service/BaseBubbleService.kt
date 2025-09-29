@@ -75,28 +75,8 @@ abstract class BaseBubbleService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Handle intent arguments if needed
         intent?.let { handleIntentArguments(it) }
-        return START_STICKY
-    }
 
-    /**
-     * Handle intent arguments - override in subclasses to process specific arguments
-     */
-    protected open fun handleIntentArguments(intent: Intent) {
-        // Default implementation - can be overridden in subclasses
-    }
-
-    /**
-     * 🎉 Bubble configuration
-     */
-    override fun onCreate() {
-        super.onCreate()
-
-        serviceScope = CoroutineScope(Dispatchers.Main)
-        if (canDrawOverlays().not()) {
-            throw IllegalStateException(
-                "You must enable 'Draw over other apps' permission to use this service."
-            )
-        } else {
+        if(canDrawOverlays()) {
             val configBubble = configBubble()
             sez.with(this.applicationContext)
             onCreateBubble(configBubble)
@@ -105,7 +85,36 @@ abstract class BaseBubbleService : Service() {
                     stopSelf()
                 }
             }
+            afterConfigureBubble()
         }
+        return START_STICKY
+    }
+
+    /**
+     * Handle intent arguments - override in subclasses to process specific arguments
+     */
+    protected open fun handleIntentArguments(intent: Intent) { }
+
+    /*
+        * Hook method called after bubble configuration is done.
+     */
+    protected open fun afterConfigureBubble() { }
+
+    /**
+     * 🎉 Bubble configuration
+     */
+    override fun onCreate() {
+        super.onCreate()
+
+        // Check for overlay permission
+        if (canDrawOverlays().not()) {
+            throw IllegalStateException(
+                "You must enable 'Draw over other apps' permission to use this service."
+            )
+        }
+
+        // Start foreground notification
+        serviceScope = CoroutineScope(Dispatchers.Main)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -129,79 +138,83 @@ abstract class BaseBubbleService : Service() {
      * It adds the bubbleView to the bubble (close, expand, ....)
      */
     private fun onCreateBubble(bubbleBuilder: BuBubbleBuilder?) {
-        if (bubbleBuilder != null) {
-            if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
-                assert(bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
-                    "You must set bubbleView or bubbleComposeView"
-                }
-                _bubble = BubbleView(
-                    context = this,
-                    containCompose = bubbleBuilder.bubbleComposeView != null,
-                    listener = bubbleBuilder.listener,
-                    forceDragging = bubbleBuilder.forceDragging,
-                    startPoint = bubbleBuilder.startPoint,
-                )
-                if (bubbleBuilder.bubbleComposeView != null) {
-                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
-                } else if (bubbleBuilder.bubbleView != null) {
-                    _bubble?.rootGroup?.addView(bubbleBuilder.bubbleView)
-                }
+        if(bubbleBuilder == null) return
+        if (bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
+            assert(bubbleBuilder.bubbleComposeView != null || bubbleBuilder.bubbleView != null) {
+                "You must set bubbleView or bubbleComposeView"
             }
-
-            if (bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
-                assert(bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
-                    "You must set closeBubbleView or closeView"
-                }
-                _closeBubble = CloseBubbleView(
-                    context = this,
-                    closeBottomDist = bubbleBuilder.closeBottomDist,
-                    distanceToClose = bubbleBuilder.distanceToClose
-                )
-                if (bubbleBuilder.closeComposeView != null) {
-                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeComposeView)
-                } else if (bubbleBuilder.closeView != null) {
-                    _closeBubble?.rootGroup?.addView(bubbleBuilder.closeView)
-                }
-            }
-            if (bubbleBuilder.expandBubbleView != null || bubbleBuilder.expandView != null) {
-                assert(bubbleBuilder.expandBubbleView != null || bubbleBuilder.expandView != null) {
-                    "You must set expandBubbleView or expandView"
-                }
-                _expandBubble = ExpandBubbleView(
-                    context = this,
-                    containCompose = bubbleBuilder.expandBubbleView != null,
-                    dragToClose = bubbleBuilder.expandDragToClose
-                )
-                if (bubbleBuilder.expandBubbleView != null) {
-                    _expandBubble?.rootGroup?.addView(bubbleBuilder.expandBubbleView)
-                } else if (bubbleBuilder.expandView != null) {
-                    _expandBubble?.rootGroup?.addView(bubbleBuilder.expandView)
-                }
-            }
-            if (bubbleBuilder.flowKeyboardBubbleView != null) {
-                _flowKeyboardBubble = FlowKeyboardBubbleView(context = this)
-                _flowKeyboardBubble?.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
-            }
-
-            _bubble?.mListener = CustomBubbleListener(
+            _bubble = BubbleView(
                 context = this,
-                lBubble = _bubble,
-                lCloseBubble = _closeBubble,
-                distanceToClose = bubbleBuilder.distanceToClose.toDouble(),
-                halfScreen = (sez.fullWidth / 2).toDouble(),
-                isAnimatedToEdge = bubbleBuilder.isAnimateToEdgeEnabled,
-                isAnimatedClose = bubbleBuilder.animatedClose,
-                onCloseBubbleView = {
-                    _bubbleStateFlow.value = bubbleState.copy(
-                        isBubbleShow = false,
-                        isDisableShowBubble = true
-                    )
-                    hideBubble()
-                    onCloseBubbleListener()
-                    refreshBubbleIconStateListener(true)
-                },
+                containCompose = bubbleBuilder.bubbleComposeView != null,
+                listener = bubbleBuilder.listener,
+                forceDragging = bubbleBuilder.forceDragging,
+                startPoint = bubbleBuilder.startPoint,
             )
+            if (bubbleBuilder.bubbleComposeView != null) {
+                _bubble?.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
+            } else if (bubbleBuilder.bubbleView != null) {
+                _bubble?.rootGroup?.addView(bubbleBuilder.bubbleView)
+            }
         }
+
+        // Create close bubble if provided
+        if (bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
+            assert(bubbleBuilder.closeComposeView != null || bubbleBuilder.closeView != null) {
+                "You must set closeBubbleView or closeView"
+            }
+            _closeBubble = CloseBubbleView(
+                context = this,
+                closeBottomDist = bubbleBuilder.closeBottomDist,
+                distanceToClose = bubbleBuilder.distanceToClose
+            )
+            if (bubbleBuilder.closeComposeView != null) {
+                _closeBubble?.rootGroup?.addView(bubbleBuilder.closeComposeView)
+            } else if (bubbleBuilder.closeView != null) {
+                _closeBubble?.rootGroup?.addView(bubbleBuilder.closeView)
+            }
+        }
+
+        // Create expand bubble if provided
+        if (bubbleBuilder.expandBubbleView != null || bubbleBuilder.expandView != null) {
+            assert(bubbleBuilder.expandBubbleView != null || bubbleBuilder.expandView != null) {
+                "You must set expandBubbleView or expandView"
+            }
+            _expandBubble = ExpandBubbleView(
+                context = this,
+                containCompose = bubbleBuilder.expandBubbleView != null,
+                dragToClose = bubbleBuilder.expandDragToClose
+            )
+            if (bubbleBuilder.expandBubbleView != null) {
+                _expandBubble?.rootGroup?.addView(bubbleBuilder.expandBubbleView)
+            } else if (bubbleBuilder.expandView != null) {
+                _expandBubble?.rootGroup?.addView(bubbleBuilder.expandView)
+            }
+        }
+
+        // Create flow keyboard bubble if provided
+        if (bubbleBuilder.flowKeyboardBubbleView != null) {
+            _flowKeyboardBubble = FlowKeyboardBubbleView(context = this)
+            _flowKeyboardBubble?.rootGroup?.addView(bubbleBuilder.flowKeyboardBubbleView)
+        }
+
+        _bubble?.mListener = CustomBubbleListener(
+            context = this,
+            lBubble = _bubble,
+            lCloseBubble = _closeBubble,
+            distanceToClose = bubbleBuilder.distanceToClose.toDouble(),
+            halfScreen = (sez.fullWidth / 2).toDouble(),
+            isAnimatedToEdge = bubbleBuilder.isAnimateToEdgeEnabled,
+            isAnimatedClose = bubbleBuilder.animatedClose,
+            onCloseBubbleView = {
+                _bubbleStateFlow.value = bubbleState.copy(
+                    isBubbleShow = false,
+                    isDisableShowBubble = true
+                )
+                hideBubble()
+                onCloseBubbleListener()
+                refreshBubbleIconStateListener(true)
+            },
+        )
     }
 
     // ✨ onClearAllBubbleData is a function that removes the bubble, closeBubble, expandBubble and flowKeyboardBubble
@@ -221,7 +234,6 @@ abstract class BaseBubbleService : Service() {
     fun showBubble() {
         if (bubbleState.isBubbleServiceActivated.not() || bubbleState.isBubbleShow) return
         if (_expandBubble?.root?.isShown == true) return
-        Log.d("BaseBubbleService", "showBubble: ${_bubble?.isShown()}")
         _bubble?.show()
         _bubble?.updateBubbleStatus(View.VISIBLE)
         _bubbleStateFlow.value = bubbleState.copy(isBubbleShow = true, isBubbleVisible = true)

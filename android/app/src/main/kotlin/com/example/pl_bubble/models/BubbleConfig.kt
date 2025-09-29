@@ -2,10 +2,9 @@ package com.example.pl_bubble.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
 // Configuration data class for a floating bubble UI component
-@Parcelize
+@Suppress("DEPRECATION")
 data class BubbleConfig(
     // Unique identifier for the bubble
     val width: Double,
@@ -37,9 +36,22 @@ data class BubbleConfig(
     // Optional configuration for notifications related to the bubble
     val notificationConfig: NotificationConfig?
 ) : Parcelable {
-    override fun describeContents(): Int {
-        return 0
-    }
+    constructor(parcel: Parcel): this(
+        width = parcel.readDouble(),
+        height = parcel.readDouble(),
+        startX = parcel.readDouble(),
+        startY = parcel.readDouble(),
+        animateToEdge = parcel.readByte() != 0.toByte(),
+        isDraggable = parcel.readByte() != 0.toByte(),
+        closeDistance = parcel.readDouble(),
+        closeBottomDistance = parcel.readDouble(),
+        showCloseAnimation = parcel.readByte() != 0.toByte(),
+        expandBubbleConfig = parcel.readParcelable(ExpandBubbleConfig::class.java.classLoader),
+        showBubbleWhenInit = parcel.readByte() != 0.toByte(),
+        notificationConfig = parcel.readParcelable(NotificationConfig::class.java.classLoader)
+    )
+
+    override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeDouble(width)
@@ -54,6 +66,15 @@ data class BubbleConfig(
         dest.writeParcelable(expandBubbleConfig, flags)
         dest.writeByte(if (showBubbleWhenInit) 1 else 0)
         dest.writeParcelable(notificationConfig, flags)
+    }
+    companion object CREATOR : Parcelable.Creator<BubbleConfig> {
+        override fun createFromParcel(parcel: Parcel): BubbleConfig {
+            return BubbleConfig(parcel)
+        }
+
+        override fun newArray(size: Int): Array<BubbleConfig?> {
+            return arrayOfNulls(size)
+        }
     }
 }
 

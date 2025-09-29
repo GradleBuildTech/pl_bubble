@@ -2,7 +2,6 @@ package com.example.pl_bubble.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
 /**
  * Configuration data class for expanding bubble settings.
@@ -11,20 +10,34 @@ import kotlinx.parcelize.Parcelize
  * @property height The height of the expanded bubble.
  * @property routeEngine The routing engine to be used.
  */
-@Parcelize
+@Suppress("DEPRECATION")
 data class ExpandBubbleConfig(
     val width: Double,
     val height: Double,
     val routeEngine: String
 ) : Parcelable {
-    override fun describeContents(): Int {
-        return 0
-    }
+    constructor(parcel: Parcel): this(
+        width = parcel.readDouble(),
+        height = parcel.readDouble(),
+        routeEngine = parcel.readString() ?: ""
+    )
+
+    override fun describeContents(): Int  = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeDouble(width)
         dest.writeDouble(height)
         dest.writeString(routeEngine)
+    }
+
+    companion object CREATOR : Parcelable.Creator<ExpandBubbleConfig> {
+        override fun createFromParcel(parcel: Parcel): ExpandBubbleConfig {
+            return ExpandBubbleConfig(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ExpandBubbleConfig?> {
+            return arrayOfNulls(size)
+        }
     }
 }
 

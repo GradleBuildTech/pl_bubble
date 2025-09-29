@@ -13,7 +13,7 @@ class BubbleChannel {
   );
 
   static const EventChannel _initialBubbleServiceChannel = EventChannel(
-    'initialBubbleService',
+    'com.example.pl_bubble/initialBubbleService',
   );
 
   static const String _updateConfigMethod = 'updateConfig';
@@ -23,6 +23,7 @@ class BubbleChannel {
   static const String _hideBubbleMethod = 'hideBubble';
   static const String _moveBubbleMethod = 'moveBubble';
   static const String _closeBubbleMethod = 'closeBubble';
+  static const String _initializeBubbleServiceMethod = 'initialBubble';
 
   // Expand bubble methods
   static const String _expandBubbleMethod = 'expandBubble';
@@ -46,11 +47,25 @@ class BubbleChannel {
         });
   }
 
+  static Future<void> initializeBubbleService(BubbleConfig config) async {
+    try {
+      await _channel.invokeMethod(
+        _initializeBubbleServiceMethod,
+        config.toJson(),
+      );
+    } on PlatformException catch (e) {
+      throw BubbleException(
+        'Failed to initialize bubble service: ${e.message}',
+        e.code,
+      );
+    }
+  }
+
   ///[BubbleChannel]
   // Show bubble with configuration
   static Future<void> showBubble() async {
     try {
-      await _channel.invokeMethod(_showBubbleMethod);
+      await _channel.invokeMethod(_showBubbleMethod, true);
     } on PlatformException catch (e) {
       throw BubbleException('Failed to show bubble: ${e.message}', e.code);
     }

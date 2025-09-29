@@ -86,15 +86,19 @@ class BubbleManager : BaseBubbleService() {
      */
     override fun onCreate() {
         super.onCreate()
+    }
+
+    // After configuring the bubble, start the foreground notification
+    override fun afterConfigureBubble() {
+        super.afterConfigureBubble()
         startNotificationForeground()
-        showBubble()
     }
 
     // Configure the bubble using BuBubbleBuilder
     override fun configBubble(): BuBubbleBuilder {
         try {
 
-            currentConfig = ServiceInstance.bubbleConfig
+            currentConfig = ServiceInstance.bubbleConfig ?: currentConfig
 
             if(currentConfig == null) {
                 throw IllegalStateException(THROW_EXCEPTION_BUBBLE_CONFIG)
@@ -158,10 +162,9 @@ class BubbleManager : BaseBubbleService() {
             if(currentConfig == null) {
                 throw IllegalStateException(THROW_EXCEPTION_BUBBLE_CONFIG)
             }
-
             bubbleNotificationBuilder = notificationHelper.initNotificationBuilder(
                 smallIcon = R.drawable.ic_flutter,
-                contentTitle = currentConfig?.notificationConfig?.contentTitle ?: DEFAULT_CONTENT_TITLE,
+                contentTitle = currentConfig?.notificationConfig?.contentTitle ?:  DEFAULT_CONTENT_TITLE,
                 contentText = currentConfig?.notificationConfig?.contentText ?: DEFAULT_CONTENT_TEXT
             )
             notificationHelper.createNotificationChannel()

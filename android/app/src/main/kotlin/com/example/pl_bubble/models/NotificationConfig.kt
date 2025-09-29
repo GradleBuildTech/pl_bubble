@@ -2,21 +2,36 @@ package com.example.pl_bubble.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
-// Data class to hold notification configuration
-@Parcelize
+/*
+    Data class to hold notification configuration details.
+    Implements Parcelable to allow easy passing between Android components.
+ */
+@Suppress("DEPRECATION")
 data class NotificationConfig(
     val contentTitle: String,
     val contentText: String
 ) : Parcelable {
-    override fun describeContents(): Int {
-        return 0
-    }
+    constructor(parcel: Parcel): this(
+        contentTitle = parcel.readString() ?: "",
+        contentText = parcel.readString() ?: ""
+    )
+
+    override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(contentTitle)
         dest.writeString(contentText)
+    }
+
+    companion object CREATOR : Parcelable.Creator<NotificationConfig> {
+        override fun createFromParcel(parcel: Parcel): NotificationConfig {
+            return NotificationConfig(parcel)
+        }
+
+        override fun newArray(size: Int): Array<NotificationConfig?> {
+            return arrayOfNulls(size)
+        }
     }
 }
 
