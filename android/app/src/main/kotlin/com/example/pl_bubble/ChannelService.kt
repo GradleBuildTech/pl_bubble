@@ -12,13 +12,10 @@ import io.flutter.plugin.common.MethodChannel
  */
 class ChannelService private constructor(){
 
-    // Instance of the ActiveBubbleService to manage bubble notifications.
-    private val  bubbleManager: BubbleManager = BubbleManager.getInstance()
-
+    // Manages bubble-related actions and interactions
     private var bubbleEventBride: BubbleEventBridge? = null
 
     companion object {
-
         const val TAG = "ChannelService"
 
         @Volatile
@@ -39,12 +36,12 @@ class ChannelService private constructor(){
 
     //[MethodChannel Handler]
     private fun showBubble() {
-        bubbleManager.showBubble()
+        BubbleManager.getInstance().showBubble()
     }
 
     private fun showExpandBubble(argument: Any) {
         val isRemoveBubble = argument as? Boolean == true
-        bubbleManager.showExpandBubble(isRemoveBubble)
+        BubbleManager.getInstance().showExpandBubble(isRemoveBubble)
     }
 
     private fun initialBubbleService(
@@ -59,7 +56,6 @@ class ChannelService private constructor(){
 
         // Initialize the BubbleEventBridge to handle event communication
         bubbleEventBride = BubbleEventBridge(
-            bubbleManager = bubbleManager,
             activityContext = context,
             arguments = argument,
             flutterEngine = flutterEngine,

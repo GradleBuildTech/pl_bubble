@@ -47,6 +47,7 @@ class BubbleManager : BaseBubbleService() {
         }
     }
 
+
     /*
         * Event sink to send bubble events back to Flutter
         * Uses MutableSharedFlow for coroutine support and multiple subscribers
@@ -86,6 +87,15 @@ class BubbleManager : BaseBubbleService() {
      */
     override fun onCreate() {
         super.onCreate()
+        INSTANCE = this
+    }
+
+    /*
+        * Clean up resources on service destruction
+     */
+    override fun onDestroy() {
+        clearInstance()
+        super.onDestroy()
     }
 
     // After configuring the bubble, start the foreground notification
@@ -97,7 +107,6 @@ class BubbleManager : BaseBubbleService() {
     // Configure the bubble using BuBubbleBuilder
     override fun configBubble(): BuBubbleBuilder {
         try {
-
             currentConfig = ServiceInstance.bubbleConfig ?: currentConfig
 
             if(currentConfig == null) {

@@ -59,10 +59,6 @@ class AndroidBubbleService implements BubbleService {
       _isInitialized = true;
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
-      throw BubbleException(
-        '$kBubbleErrorHead initialize Android bubble service: $e',
-        'INIT_ERROR',
-      );
     }
   }
 

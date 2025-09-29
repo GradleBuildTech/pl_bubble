@@ -22,7 +22,6 @@ import kotlinx.coroutines.cancel
     * Manages event sink for sending events back to Flutter
  */
 class BubbleEventBridge(
-    val bubbleManager: BubbleManager,
     val activityContext: Context,
     arguments: Any?,
     flutterEngine: FlutterEngine,
@@ -53,7 +52,6 @@ class BubbleEventBridge(
             if(arguments !is Map<*, *>) return
             val bubbleConfig = arguments.toBubbleConfig()
             if(bubbleConfig == null) return
-
             // Prevent multiple initializations
             ServiceInstance.bubbleConfig = bubbleConfig
 
@@ -74,13 +72,11 @@ class BubbleEventBridge(
 
     // Called when the event channel is listened to from Flutter
     private fun listenChange(arguments: Any? = null) {
-        if(isRunning) return
-        isRunning = true
-
-        initialBubbleService(arguments)
-
+//        if(isRunning) return
+//        isRunning = true
+//
 //        scope.launch {
-//            bubbleManager.listenToEventSink { event ->
+//            BubbleManager.getInstance().listenToEventSink { event ->
 //                channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = event))
 //            }
 //        }
