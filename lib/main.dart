@@ -39,12 +39,14 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
       BubbleConfig(
         startPosition: BubblePosition(x: 0, y: 300),
 
-        bubbleSize: Size(60, 60),
-        animateToEdge: true,
+        bubbleSize: Size(90, 90),
+        showCloseAnimation: false,
+
         isDraggable: true,
         showBubbleWhenInit: false,
 
         closeDistance: 200.0,
+
         expandBubbleConfig: ExpandBubbleConfig(
           width: BubbleConstants.matchParent.toDouble(),
           height: 400.0,

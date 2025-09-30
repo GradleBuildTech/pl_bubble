@@ -143,6 +143,7 @@ class BubbleManager : BaseBubbleService() {
             val builder =  BuBubbleBuilder(this)
                 .bubbleView(bubbleView)
                 .closeView(closeBubbleView)
+                .bubbleAnimatedClose(false)
                 .fromBubbleConfig(currentConfig!!)
                 .bubbleListener(
                     object : BubbleListener {

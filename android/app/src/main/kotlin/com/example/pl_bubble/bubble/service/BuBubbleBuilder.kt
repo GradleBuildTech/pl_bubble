@@ -5,7 +5,6 @@ import android.graphics.Point
 import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
 import com.example.pl_bubble.bubble.event.BubbleListener
 import com.example.pl_bubble.bubble.utils.CLOSE_BOTTOM_DIST
 import com.example.pl_bubble.models.BubbleConfig
@@ -170,6 +169,8 @@ class BuBubbleBuilder(private val context: Context) {
 
         this.distanceToClose = bubbleConfig.closeDistance.toInt()
         this.closeBottomDist = bubbleConfig.closeBottomDistance.toInt()
+
+        this.animatedClose = bubbleConfig.showCloseAnimation
 
         return this
     }

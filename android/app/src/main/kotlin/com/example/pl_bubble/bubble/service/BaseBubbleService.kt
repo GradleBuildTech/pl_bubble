@@ -1,7 +1,6 @@
 package com.example.pl_bubble.bubble.service
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.IBinder
@@ -198,7 +197,6 @@ abstract class BaseBubbleService : Service() {
         }
 
         _bubble?.mListener = CustomBubbleListener(
-            context = this,
             lBubble = _bubble,
             lCloseBubble = _closeBubble,
             distanceToClose = bubbleBuilder.distanceToClose.toDouble(),
@@ -303,12 +301,10 @@ abstract class BaseBubbleService : Service() {
      * @Param lBubble is the bubble view
      * @Param lCloseBubble is the close bubble view
      * @Param isAnimatedToEdge is a boolean value that indicates if the bubble is animated to the edge
-     * @Param context is the context of the bubble
      * @Param halfScreen is the half screen width
      * @Param distanceToClose is the distance to close the bubble
      */
     private inner class CustomBubbleListener(
-        private val context: Context,
         private val lBubble: BubbleView?,
         private val lCloseBubble: CloseBubbleView?,
         private val isAnimatedToEdge: Boolean = true,
