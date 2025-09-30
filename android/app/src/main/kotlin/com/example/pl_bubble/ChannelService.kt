@@ -27,28 +27,22 @@ class ChannelService private constructor(){
                 INSTANCE ?: ChannelService().also { INSTANCE = it }
             }
         }
-
-        // Clear instance (useful for testing or cleanup)
-        fun clearInstance() {
-            INSTANCE = null
-        }
     }
 
     //[MethodChannel Handler]
     private fun showBubble() {
-        BubbleManager.getInstance().showBubble()
+        BubbleManager.getInstance()?.showBubble()
     }
 
     private fun showExpandBubble(argument: Any) {
         val isRemoveBubble = argument as? Boolean == true
-        BubbleManager.getInstance().showExpandBubble(isRemoveBubble)
+        BubbleManager.getInstance()?.showExpandBubble(isRemoveBubble)
     }
 
     private fun initialBubbleService(
         argument: Any,
         context: Context,
         flutterEngine: FlutterEngine,
-        result: MethodChannel.Result? = null
     ) {
         Log.d(TAG, "initialBubbleService called")
         // Initialize the bubble service with the provided configuration
@@ -61,25 +55,53 @@ class ChannelService private constructor(){
             flutterEngine = flutterEngine,
         )
 
+        bubbleEventBride?.startEventListening()
+
     }
     // Handles method calls from Flutter and performs corresponding actions.
-    fun doAction(
+    private fun doAction(
         method: String,
         argument: Any,
         context: Context,
         flutterEngine: FlutterEngine,
         result: MethodChannel.Result
     ) {
+        if(method != ChannelConstant.INITIAL_BUBBLE_METHOD && BubbleManager.getInstance()?.isServiceInitialized() == false) {
+            result.error("BubbleServiceNotInitialized", "Please initialize bubble service before calling other methods.", null)
+            return
+        }
         try {
             when(method)  {
                 ChannelConstant.SHOW_BUBBLE_METHOD -> showBubble()
                 ChannelConstant.EXPAND_BUBBLE_METHOD -> showExpandBubble(argument)
-                ChannelConstant.INITIAL_BUBBLE_METHOD  -> initialBubbleService(argument, context, flutterEngine, result)
+                ChannelConstant.INITIAL_BUBBLE_METHOD  -> initialBubbleService(argument, context, flutterEngine)
                 else -> result.notImplemented()
             }
         } catch (exception: Exception) {
             Log.d(TAG, "Error handling method call: ${exception.message}")
             throw exception
+        }
+    }
+
+    /*
+        * Initializes the MethodChannel to communicate with Flutter.
+        * Sets up the method call handler to process incoming method calls.
+     */
+    fun initService(
+        context: Context,
+        flutterEngine: FlutterEngine,
+    ) {
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            ChannelConstant.SERVICE_CHANNEL
+        ).setMethodCallHandler { call , result ->
+            doAction(
+                result = result,
+                method = call.method,
+                argument = call.arguments,
+                context = context,
+                flutterEngine = flutterEngine,
+            )
         }
     }
 }

@@ -11,10 +11,6 @@ import com.example.pl_bubble.models.toBubbleConfig
 import com.example.pl_bubble.utils.ChannelConstant
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 /*
     * Bridge class to handle event channel communication for bubble events
@@ -28,15 +24,14 @@ class BubbleEventBridge(
 ) {
 
     init {
-        listenChange()
         initialBubbleService(arguments)
+        startEventListening()
     }
 
     companion object {
         const val TAG = "BubbleEventBridge"
     }
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val channel = MethodChannel(
         flutterEngine.dartExecutor.binaryMessenger,
@@ -70,23 +65,23 @@ class BubbleEventBridge(
         }
     }
 
-    // Called when the event channel is listened to from Flutter
-    private fun listenChange(arguments: Any? = null) {
-//        if(isRunning) return
-//        isRunning = true
-//
-//        scope.launch {
-//            BubbleManager.getInstance().listenToEventSink { event ->
-//                channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = event))
-//            }
-//        }
-
+    /**
+     * Starts listening to bubble events and forwards them to Flutter
+     * This method sets up the event stream from BubbleManager to Flutter
+     */
+    fun startEventListening() {
+        if (isRunning) {
+            Log.w(TAG, "Event listening is already running")
+            return
+        }
+        
+        isRunning = true
+        BubbleManager.getInstance()?.listenToEventSink {
+            if (!isRunning) return@listenToEventSink
+            Log.d(TAG, "Sending event to Flutter: $it")
+            channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = it))
+        }?.run {
+            Log.d(TAG, "Started listening to bubble events")
+        }
     }
-
-    // Called when the event channel is cancelled from Flutter
-    fun onCancel() {
-        isRunning = false
-        scope.coroutineContext.cancel()
-    }
-
 }

@@ -111,7 +111,6 @@ abstract class BaseBubbleService : Service() {
                 "You must enable 'Draw over other apps' permission to use this service."
             )
         }
-
         // Start foreground notification
         serviceScope = CoroutineScope(Dispatchers.Main)
     }

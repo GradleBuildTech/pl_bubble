@@ -14,11 +14,15 @@ import com.example.pl_bubble.bubble.utils.BubbleEdgeSide
 import com.example.pl_bubble.events.BubbleEvent
 import com.example.pl_bubble.frame.FlutterFrame
 import com.example.pl_bubble.models.BubbleConfig
-
 import com.example.pl_bubble.utils.BUBBLE_NOTIFICATION_ID
 import com.example.pl_bubble.utils.CHANNEL_NAME
 import com.example.pl_bubble.utils.NOTIFICATION_CHANNEL_ID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
 /*
     * ActiveBubbleService class to manage bubble lifecycle and interactions.
@@ -34,18 +38,20 @@ class BubbleManager : BaseBubbleService() {
 
         @Volatile
         private var INSTANCE: BubbleManager? = null
-        
+
         // Get singleton instance
-        fun getInstance(): BubbleManager {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BubbleManager().also { INSTANCE = it }
-            }
-        }
+        fun getInstance(): BubbleManager? = INSTANCE
+
         // Clear instance (useful for testing or cleanup)
         fun clearInstance() {
             INSTANCE = null
         }
     }
+
+    /*
+        * Coroutine scope for managing asynchronous tasks
+     */
+    private var scope : CoroutineScope? = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
 
     /*
@@ -58,8 +64,10 @@ class BubbleManager : BaseBubbleService() {
         eventSink.tryEmit(event)
     }
 
-    suspend fun listenToEventSink(bubbleEvent: (BubbleEvent) -> Unit) {
-        eventSink.collect { event -> bubbleEvent(event) }
+    fun listenToEventSink(bubbleEvent: (BubbleEvent) -> Unit) {
+        scope?.launch {
+            eventSink.collect { event -> bubbleEvent(event) }
+        }
     }
 
 
@@ -95,6 +103,8 @@ class BubbleManager : BaseBubbleService() {
      */
     override fun onDestroy() {
         clearInstance()
+        scope?.cancel()
+        scope = null
         super.onDestroy()
     }
 

@@ -10,6 +10,28 @@ import 'bubble_service.dart';
 const kBubbleErrorHead = 'Failed to';
 
 /// Android-specific implementation of bubble service
+/// Example:
+/// ```dart
+/// AndroidBubbleService.instance.initialize(BubbleConfig(
+///   bubbleSize: Size(90, 90),
+/// ));
+/// ```
+///
+/// Example:
+/// ```dart
+/// AndroidBubbleService.instance.showBubble();
+/// ```
+///
+/// Example:
+/// ```dart
+/// AndroidBubbleService.instance.hideBubble();
+/// ```
+///
+/// Example:
+/// ```dart
+/// AndroidBubbleService.instance.expandBubble();
+/// ```
+///
 class AndroidBubbleService implements BubbleService {
   AndroidBubbleService._();
 
