@@ -52,7 +52,8 @@ class BubbleManager : BaseBubbleService() {
     /*
         * Coroutine scope for managing asynchronous tasks
      */
-    private var scope : CoroutineScope? = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var scope : CoroutineScope? =
+        CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     /*
         * Event sink to send bubble events back to Flutter

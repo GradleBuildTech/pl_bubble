@@ -78,11 +78,12 @@ abstract class BaseBubbleService : Service() {
         if(canDrawOverlays()) {
             val configBubble = configBubble()
             sez.with(this.applicationContext)
+
+            // Start foreground notification
             onCreateBubble(configBubble)
+
             this._serviceInteraction = object : ServiceInteraction {
-                override fun requestStop() {
-                    stopSelf()
-                }
+                override fun requestStop() = stopSelf()
             }
             afterConfigureBubble()
         }
@@ -148,6 +149,7 @@ abstract class BaseBubbleService : Service() {
                 forceDragging = bubbleBuilder.forceDragging,
                 startPoint = bubbleBuilder.startPoint,
             )
+
             if (bubbleBuilder.bubbleComposeView != null) {
                 _bubble?.rootGroup?.addView(bubbleBuilder.bubbleComposeView)
             } else if (bubbleBuilder.bubbleView != null) {
@@ -256,8 +258,11 @@ abstract class BaseBubbleService : Service() {
         _expandBubble?.onOpen()
     }
 
+    /**
+        * This function is used to hide the expand bubble view.
+        * @param showBubbleAfterClose is a boolean value that indicates if the bubble should be shown after the expand bubble is closed.
+    */
     fun hideExpandBubble(
-        // This value is used to determine whether to show the bubble after closing the expand bubble
         showBubbleAfterClose: Boolean = true
     ) {
         _expandBubble?.onClose(

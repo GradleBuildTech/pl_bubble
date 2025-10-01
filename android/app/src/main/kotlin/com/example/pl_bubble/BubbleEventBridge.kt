@@ -92,7 +92,6 @@ class BubbleEventBridge(
         isRunning = true
         bubbleManger.listenToEventSink {
             if (!isRunning) return@listenToEventSink
-            Log.d(TAG, "Sending event to Flutter: $it")
             channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = it).toMap())
         }.run {
             //Print if instance is null

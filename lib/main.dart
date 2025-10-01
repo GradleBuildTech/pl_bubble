@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pl_bubble/src/utils/logger.dart';
 
@@ -62,6 +64,8 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
 
         case BubbleErrorEvent():
           Logger.d('MainPage', event.errorMessage);
+        case BubbleTouchMoveEvent():
+          Logger.d('MainPage', "Touch move: ${event.deltaX}, ${event.deltaY}");
 
         default:
           Logger.d("Unknown event: ${event.runtimeType}", "Unknown event");

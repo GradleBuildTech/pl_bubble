@@ -5,11 +5,12 @@ import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
 import '../exceptions/bubble_exception.dart';
 import '../models/bubble_event_data.dart';
+import '../utils/constants.dart';
 
 // Method channel for communicating with native bubble implementation
 class BubbleChannel {
   static const MethodChannel _channel = MethodChannel(
-    'com.example.pl_bubble/bubble',
+    BubbleConstants.methodChannelName,
   );
 
   static const EventChannel _initialBubbleServiceChannel = EventChannel(

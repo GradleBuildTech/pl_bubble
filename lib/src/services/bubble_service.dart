@@ -17,6 +17,10 @@ abstract class BubbleService {
   /// Whether the bubble is currently expanded
   bool get isExpanded;
 
+  /// Set the event bridge listener
+
+  void startEventBridgeListener();
+
   /// Initialize the bubble service with configuration
   Future<void> initialize(BubbleConfig config);
 

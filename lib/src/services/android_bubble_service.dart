@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:pl_bubble/src/services/channel_listener.dart';
+
 import '../models/bubble_config.dart';
 import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
@@ -77,11 +79,21 @@ class AndroidBubbleService implements BubbleService {
     if (_isInitialized) return;
 
     try {
+      // Listen to event bridge
+      ChannelListener.listenToEventBridge(onEvent: _handleEvent);
+
+      // Initialize bubble service
       await BubbleChannel.initializeBubbleService(config);
+
       _isInitialized = true;
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
     }
+  }
+
+  @override
+  void startEventBridgeListener() {
+    // ChannelListener.listenToEventBridge(onEvent: _handleEvent);
   }
 
   @override
@@ -262,6 +274,7 @@ class AndroidBubbleService implements BubbleService {
 
   /// Handle events from native side
   void _handleEvent(BubbleEvent event) {
+    Logger.d("AndroidBubbleService", "Received event: $event");
     _eventController.add(event);
 
     // Update internal state based on event

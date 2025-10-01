@@ -39,7 +39,8 @@ fun BubbleEvent.toEventString(): String {
     }
 }
 
-fun BubbleEvent.toDataMap(): Any? {
+// Extension function to convert BubbleEvent to a Map for easier serialization or transmission
+fun BubbleEvent.toDataMap(): Map<String, Any>? {
     return when(this) {
         is BubbleEvent.UpdateBubbleState -> mapOf("isVisible" to this.isVisible)
         is BubbleEvent.BubbleMovement -> mapOf("x" to this.x, "y" to this.y)

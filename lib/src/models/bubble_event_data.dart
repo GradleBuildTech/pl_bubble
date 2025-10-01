@@ -1,4 +1,5 @@
 import '../../pl_bubble.dart';
+import '../utils/logger.dart';
 
 /// Data class for recieving data from native side
 class BubbleEventData {
@@ -15,7 +16,9 @@ class BubbleEventData {
   /// Parse event from JSON
   static BubbleEvent _parseEvent(Map<String, dynamic> eventData) {
     final eventType = eventData['eventType'] as String? ?? '';
-    final data = eventData['data'] as Map<String, dynamic>? ?? {};
+    final data = eventData['data'] as Map? ?? {};
+
+    Logger.d("BubbleEventData", "Parsing event: $eventData");
 
     switch (eventType) {
       case 'touchStart':
