@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.pl_bubble.bubble.event.BubbleListener
 import com.example.pl_bubble.bubble.notification.NotificationHelper
 import com.example.pl_bubble.bubble.service.BaseBubbleService
@@ -51,25 +52,24 @@ class BubbleManager : BaseBubbleService() {
     /*
         * Coroutine scope for managing asynchronous tasks
      */
-    private var scope : CoroutineScope? = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
+    private var scope : CoroutineScope? = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     /*
         * Event sink to send bubble events back to Flutter
         * Uses MutableSharedFlow for coroutine support and multiple subscribers
      */
-    private val eventSink: MutableSharedFlow<BubbleEvent> = MutableSharedFlow()
+    private val eventSink: MutableSharedFlow<BubbleEvent> = MutableSharedFlow(replay = 0)
 
     private fun sink(event: BubbleEvent) {
-        eventSink.tryEmit(event)
+        scope?.launch { eventSink.emit(event) }
     }
 
+    // Listen to event sink and forward events to the provided lambda
     fun listenToEventSink(bubbleEvent: (BubbleEvent) -> Unit) {
         scope?.launch {
             eventSink.collect { event -> bubbleEvent(event) }
         }
     }
-
 
     // State management
     private var isInitialized = false
@@ -112,6 +112,9 @@ class BubbleManager : BaseBubbleService() {
     override fun afterConfigureBubble() {
         super.afterConfigureBubble()
         startNotificationForeground()
+
+        // Notify Flutter that the service has been initialized
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("SERVICE_CREATED"))
     }
 
     // Configure the bubble using BuBubbleBuilder

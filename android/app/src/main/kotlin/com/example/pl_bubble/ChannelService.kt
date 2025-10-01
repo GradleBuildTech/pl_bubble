@@ -54,10 +54,13 @@ class ChannelService private constructor(){
             arguments = argument,
             flutterEngine = flutterEngine,
         )
-
-        bubbleEventBride?.startEventListening()
-
     }
+
+
+    fun startListeningService() {
+       bubbleEventBride?.startEventListening()
+    }
+
     // Handles method calls from Flutter and performs corresponding actions.
     private fun doAction(
         method: String,

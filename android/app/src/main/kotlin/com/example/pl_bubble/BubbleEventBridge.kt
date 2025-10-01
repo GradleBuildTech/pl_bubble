@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import com.example.pl_bubble.bubble.utils.ext.isServiceRunningInForeground
 import com.example.pl_bubble.events.BubbleEvent
 import com.example.pl_bubble.events.BubbleSendFormat
+import com.example.pl_bubble.events.toMap
 import com.example.pl_bubble.models.toBubbleConfig
 import com.example.pl_bubble.utils.ChannelConstant
 import io.flutter.embedding.engine.FlutterEngine
@@ -25,7 +26,6 @@ class BubbleEventBridge(
 
     init {
         initialBubbleService(arguments)
-        startEventListening()
     }
 
     companion object {
@@ -43,6 +43,7 @@ class BubbleEventBridge(
 
     // Initializes the bubble service with the provided configuration
     private fun initialBubbleService(arguments: Any?) {
+
         try {
             if(arguments !is Map<*, *>) return
             val bubbleConfig = arguments.toBubbleConfig()
@@ -56,6 +57,8 @@ class BubbleEventBridge(
                 // Add BubbleConfig as intent extra for service initialization
                 intent.putExtra("BUBBLE_CONFIG", bubbleConfig)
                 ContextCompat.startForegroundService(activityContext, intent)
+
+
             }
 
         } catch (exception: Exception) {
@@ -74,14 +77,26 @@ class BubbleEventBridge(
             Log.w(TAG, "Event listening is already running")
             return
         }
-        
+
+        // Get the BubbleManager instance
+        val bubbleManger = BubbleManager.getInstance()
+
+        // Log and return if instance is null
+        if(bubbleManger == null) {
+            Log.e(TAG, "BubbleManager instance is null, cannot start event listening")
+            return
+        }
+
+        Log.d(TAG, "Starting event listening")
+
         isRunning = true
-        BubbleManager.getInstance()?.listenToEventSink {
+        bubbleManger.listenToEventSink {
             if (!isRunning) return@listenToEventSink
             Log.d(TAG, "Sending event to Flutter: $it")
-            channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = it))
-        }?.run {
-            Log.d(TAG, "Started listening to bubble events")
+            channel.invokeMethod(ChannelConstant.EVENT_BRIDGE, BubbleSendFormat(event = it).toMap())
+        }.run {
+            //Print if instance is null
+            Log.e(TAG, "BubbleManager instance is null, cannot listen to events")
         }
     }
 }
