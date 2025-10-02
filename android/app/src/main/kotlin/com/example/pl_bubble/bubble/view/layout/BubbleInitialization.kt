@@ -88,7 +88,9 @@ open class BubbleInitialization(
                 composeOwner?.onResume()
             }
             /// Adding the root view group to the window manager.
-            _windowManager?.addView(root, _rootParams)
+            if(root?.isAttachedToWindow == false) {
+                windowManager.addView(root, _rootParams)
+            }
             return true
         } catch (e: Exception) {
             e.printStackTrace()

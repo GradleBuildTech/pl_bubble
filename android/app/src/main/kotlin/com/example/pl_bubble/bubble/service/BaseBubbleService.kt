@@ -252,10 +252,14 @@ abstract class BaseBubbleService : Service() {
      * * This function is used to show the expand bubble view.
      */
     fun showExpandBubble(isRemoveBubble: Boolean = false) {
-        if (isRemoveBubble) {
-            hideBubble()
+        try {
+            if (isRemoveBubble) {
+                hideBubble()
+            }
+            _expandBubble?.onOpen()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        _expandBubble?.onOpen()
     }
 
     /**

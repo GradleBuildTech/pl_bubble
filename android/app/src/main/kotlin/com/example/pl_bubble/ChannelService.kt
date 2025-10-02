@@ -39,6 +39,10 @@ class ChannelService private constructor(){
         BubbleManager.getInstance()?.showExpandBubble(isRemoveBubble)
     }
 
+    private fun closeExpandBubble() {
+        BubbleManager.getInstance()?.hideExpandBubble(showBubbleAfterClose = false)
+    }
+
     private fun initialBubbleService(
         argument: Any,
         context: Context,
@@ -70,13 +74,16 @@ class ChannelService private constructor(){
         result: MethodChannel.Result
     ) {
         if(method != ChannelConstant.INITIAL_BUBBLE_METHOD && BubbleManager.getInstance()?.isServiceInitialized() == false) {
+            Log.d(TAG, "Bubble service not initialized. Please initialize before calling other methods.")
             result.error("BubbleServiceNotInitialized", "Please initialize bubble service before calling other methods.", null)
             return
         }
+
         try {
             when(method)  {
                 ChannelConstant.SHOW_BUBBLE_METHOD -> showBubble()
                 ChannelConstant.EXPAND_BUBBLE_METHOD -> showExpandBubble(argument)
+                ChannelConstant.CLOSE_EXPAND_BUBBLE_METHOD -> closeExpandBubble()
                 ChannelConstant.INITIAL_BUBBLE_METHOD  -> initialBubbleService(argument, context, flutterEngine)
                 else -> result.notImplemented()
             }
@@ -98,6 +105,7 @@ class ChannelService private constructor(){
             flutterEngine.dartExecutor.binaryMessenger,
             ChannelConstant.SERVICE_CHANNEL
         ).setMethodCallHandler { call , result ->
+            Log.d(TAG, "Method call received: ${call.method} with arguments: ${call.arguments}")
             doAction(
                 result = result,
                 method = call.method,

@@ -16,6 +16,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       showSemanticsDebugger: false,
+      debugShowCheckedModeBanner: false,
 
       routes: {
         "/expandBubble": (context) => const ExpandBubblePage(),
@@ -51,7 +52,7 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
 
         expandBubbleConfig: ExpandBubbleConfig(
           width: BubbleConstants.matchParent.toDouble(),
-          height: 400.0,
+          height: 500.0,
           routeEngine: "/expandBubble",
         ),
       ),
@@ -95,6 +96,13 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
               },
               child: const Text('Open Bubble'),
             ),
+            const SizedBox(height: 12.0),
+            TextButton(
+              onPressed: () async {
+                await AndroidBubbleService.instance.closeExpandBubble();
+              },
+              child: const Text('Close Expand Bubble'),
+            ),
           ],
         ),
       ),
@@ -124,10 +132,25 @@ class ExpandBubblePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 300,
-
+      height: double.infinity,
       child: Scaffold(
-        body: Center(child: Text("Hello from Flutter inside Bubble 🚀")),
+        body: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: Text("Hello from Flutter inside Bubble 🚀")),
+                IconButton(
+                  onPressed: () =>
+                      AndroidBubbleService.instance.closeExpandBubble(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12.0),
+            Expanded(child: Text("Hello from Flutter inside Bubble 🚀")),
+          ],
+        ),
       ),
     );
   }

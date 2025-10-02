@@ -57,8 +57,6 @@ class BubbleEventBridge(
                 // Add BubbleConfig as intent extra for service initialization
                 intent.putExtra("BUBBLE_CONFIG", bubbleConfig)
                 ContextCompat.startForegroundService(activityContext, intent)
-
-
             }
 
         } catch (exception: Exception) {
@@ -74,7 +72,7 @@ class BubbleEventBridge(
      */
     fun startEventListening() {
         if (isRunning) {
-            Log.w(TAG, "Event listening is already running")
+            Log.d(TAG, "Event listening is already running")
             return
         }
 
@@ -83,7 +81,7 @@ class BubbleEventBridge(
 
         // Log and return if instance is null
         if(bubbleManger == null) {
-            Log.e(TAG, "BubbleManager instance is null, cannot start event listening")
+            Log.d(TAG, "BubbleManager instance is null, cannot start event listening")
             return
         }
 

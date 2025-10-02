@@ -7,7 +7,6 @@ import android.os.Parcelable
     Data class to hold notification configuration details.
     Implements Parcelable to allow easy passing between Android components.
  */
-@Suppress("DEPRECATION")
 data class NotificationConfig(
     val contentTitle: String,
     val contentText: String

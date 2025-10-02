@@ -9,6 +9,14 @@ import '../utils/constants.dart';
 
 // Method channel for communicating with native bubble implementation
 class BubbleChannel {
+  BubbleChannel._();
+
+  factory BubbleChannel() => _instance;
+
+  static final BubbleChannel _instance = BubbleChannel._();
+
+  static BubbleChannel get instance => _instance;
+
   static const MethodChannel _channel = MethodChannel(
     BubbleConstants.methodChannelName,
   );
@@ -123,7 +131,7 @@ class BubbleChannel {
 
   static Future<void> closeExpandBubble() async {
     try {
-      await _channel.invokeMethod(_closeExpandBubbleMethod);
+      await _channel.invokeMethod(_closeExpandBubbleMethod, true);
     } on PlatformException catch (e) {
       throw BubbleException(
         'Failed to close expand bubble: ${e.message}',

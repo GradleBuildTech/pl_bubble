@@ -77,7 +77,10 @@ class ExpandBubbleView(
     /// Show the bubble view
     fun onOpen() {
         if(springAnimation != null) return
-        if(!isInitial) show()
+        if(!isInitial) {
+            show()
+            return // Prevent multiple calls before initial animation is complete
+        }
         updateVisibility(isShown = false)
         layoutParams?.apply {
             this.x = 0
