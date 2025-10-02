@@ -60,7 +60,7 @@ class PlatformUtils {
     try {
       final result = await _channel.invokeMethod('getPlatformVersion');
       return result as String? ?? 'Unknown';
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       return 'Unknown';
     }
   }
@@ -70,7 +70,7 @@ class PlatformUtils {
     try {
       final result = await _channel.invokeMethod('isAppInForeground');
       return result as bool? ?? true;
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       return true;
     }
   }

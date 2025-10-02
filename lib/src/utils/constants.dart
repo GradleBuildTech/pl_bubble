@@ -2,6 +2,7 @@
 class BubbleConstants {
   // Method channel names
   static const String methodChannelName = 'com.example.pl_bubble/bubble';
+
   static const String eventChannelName = 'com.example.pl_bubble/bubble_events';
 
   // Method names

@@ -97,7 +97,7 @@ class ChannelService private constructor(){
         * Initializes the MethodChannel to communicate with Flutter.
         * Sets up the method call handler to process incoming method calls.
      */
-    fun initService(
+    fun initMainBubbleService(
         context: Context,
         flutterEngine: FlutterEngine,
     ) {
@@ -115,4 +115,5 @@ class ChannelService private constructor(){
             )
         }
     }
+
 }

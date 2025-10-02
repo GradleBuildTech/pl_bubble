@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -28,6 +30,13 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        // Additional initialization if needed
+        ServiceInstance.applicationContext = this
+    }
+
+
     /// Registers a BroadcastReceiver to listen for service creation events when the activity starts.
     override fun onStart() {
         super.onStart()
@@ -38,7 +47,12 @@ class MainActivity : FlutterActivity() {
     /// Configures the Flutter engine and sets up a MethodChannel to communicate with Flutter.
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        service.initService(this, flutterEngine)
+
+        // Store the FlutterEngine instance in ServiceInstance for later use
+
+        // Initialize the ChannelService with the current context and FlutterEngine
+        service.initMainBubbleService(this, flutterEngine)
+
     }
 
 
