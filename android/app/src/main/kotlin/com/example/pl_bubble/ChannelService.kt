@@ -2,6 +2,7 @@ package com.example.pl_bubble
 
 import android.content.Context
 import android.util.Log
+import com.example.pl_bubble.permissions.PermissionTracking
 import com.example.pl_bubble.utils.ChannelConstant
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -14,6 +15,9 @@ class ChannelService private constructor(){
 
     // Manages bubble-related actions and interactions
     private var bubbleEventBride: BubbleEventBridge? = null
+
+    // Tracks permission status and requests
+    private val permissionTracking: PermissionTracking = PermissionTracking.getInstance()
 
     companion object {
         const val TAG = "ChannelService"
@@ -47,17 +51,25 @@ class ChannelService private constructor(){
         argument: Any,
         context: Context,
         flutterEngine: FlutterEngine,
+        result: MethodChannel.Result
     ) {
-        Log.d(TAG, "initialBubbleService called")
-        // Initialize the bubble service with the provided configuration
-        if(bubbleEventBride != null) return
-
-        // Initialize the BubbleEventBridge to handle event communication
-        bubbleEventBride = BubbleEventBridge(
-            activityContext = context,
-            arguments = argument,
-            flutterEngine = flutterEngine,
-        )
+        permissionTracking.ensurePermissionsAsync(context).addOnSuccessListener {allGranted ->
+            if(allGranted) {
+                if(bubbleEventBride != null) return@addOnSuccessListener
+                bubbleEventBride = BubbleEventBridge(
+                    activityContext = context,
+                    arguments = argument,
+                    flutterEngine = flutterEngine,
+                )
+                result.success(true)
+            } else {
+                Log.d(TAG, "Permission denied for bubble service.")
+                result.error("PermissionDenied", "Required permissions not granted for bubble service.", null)
+            }
+        }.addOnFailureListener { exception ->
+            Log.d(TAG, "Error checking permissions: ${exception.message}")
+            result.error("PermissionCheckError", "Error checking permissions: ${exception.message}", null)
+        }
     }
 
 
@@ -84,7 +96,7 @@ class ChannelService private constructor(){
                 ChannelConstant.SHOW_BUBBLE_METHOD -> showBubble()
                 ChannelConstant.EXPAND_BUBBLE_METHOD -> showExpandBubble(argument)
                 ChannelConstant.CLOSE_EXPAND_BUBBLE_METHOD -> closeExpandBubble()
-                ChannelConstant.INITIAL_BUBBLE_METHOD  -> initialBubbleService(argument, context, flutterEngine)
+                ChannelConstant.INITIAL_BUBBLE_METHOD  -> initialBubbleService(argument, context, flutterEngine, result)
                 else -> result.notImplemented()
             }
         } catch (exception: Exception) {
