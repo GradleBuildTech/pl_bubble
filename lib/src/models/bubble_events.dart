@@ -70,12 +70,3 @@ final class BubblePermissionRequestEvent extends BubbleEvent {
     required this.isGranted,
   });
 }
-
-/// Event listener interface for bubble events
-abstract class BubbleEventListener {
-  void onVisibilityChange(bool isVisible) {}
-  void onExpand(bool isExpanded) {}
-  void onClose() {}
-  void onAnimateToEdge(BubbleEdgeSide targetEdge) {}
-  void onStateChange(BubbleState previousState, BubbleState newState) {}
-}

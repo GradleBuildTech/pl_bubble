@@ -34,7 +34,7 @@ const kBubbleErrorHead = 'Failed to';
 /// AndroidBubbleService.instance.expandBubble();
 /// ```
 ///
-class AndroidBubbleService implements BubbleService {
+class AndroidBubbleService extends BubbleService {
   AndroidBubbleService._();
 
   factory AndroidBubbleService() => _instance;
@@ -42,11 +42,6 @@ class AndroidBubbleService implements BubbleService {
   static final AndroidBubbleService _instance = AndroidBubbleService._();
 
   static AndroidBubbleService get instance => _instance;
-
-  final StreamController<BubbleEvent> _eventController =
-      StreamController<BubbleEvent>.broadcast();
-
-  final List<BubbleEventListener> _listeners = [];
 
   BubbleState _currentState = const BubbleState(
     position: BubblePosition(x: 0, y: 0),
@@ -62,8 +57,6 @@ class AndroidBubbleService implements BubbleService {
   bool _isInitialized = false;
 
   //Stream of bubble events, this is the stream that will be used to listen to the bubble events
-  @override
-  Stream<BubbleEvent> get eventStream => _eventController.stream;
 
   @override
   BubbleState get currentState => _currentState;
@@ -92,21 +85,11 @@ class AndroidBubbleService implements BubbleService {
   }
 
   @override
-  void startEventBridgeListener() {
-    // ChannelListener.listenToEventBridge(onEvent: _handleEvent);
-  }
-
-  @override
   Future<void> showBubble() async {
     try {
       await BubbleChannel.showBubble();
       _isVisible = true;
       _currentState = _currentState.copyWith(isVisible: true);
-
-      // Notify listeners
-      for (final listener in _listeners) {
-        listener.onVisibilityChange(true);
-      }
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
@@ -122,11 +105,6 @@ class AndroidBubbleService implements BubbleService {
       await BubbleChannel.hideBubble();
       _isVisible = false;
       _currentState = _currentState.copyWith(isVisible: false);
-
-      // Notify listeners
-      for (final listener in _listeners) {
-        listener.onVisibilityChange(false);
-      }
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException('Failed to hide bubble: $e', 'HIDE_BUBBLE_ERROR');
@@ -139,11 +117,6 @@ class AndroidBubbleService implements BubbleService {
       await BubbleChannel.expandBubble(isRemoveBubble: isRemoveBubble);
       _isExpanded = true;
       _currentState = _currentState.copyWith(isExpanded: true);
-
-      // Notify listeners
-      for (final listener in _listeners) {
-        listener.onExpand(true);
-      }
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
@@ -216,11 +189,6 @@ class AndroidBubbleService implements BubbleService {
         isVisible: false,
         isExpanded: false,
       );
-
-      // Notify listeners
-      for (final listener in _listeners) {
-        listener.onClose();
-      }
     } catch (e) {
       Logger.d('AndroidBubbleService', e.toString());
       throw BubbleException(
@@ -256,26 +224,10 @@ class AndroidBubbleService implements BubbleService {
     }
   }
 
-  @override
-  void addEventListener(BubbleEventListener listener) {
-    _listeners.add(listener);
-  }
-
-  @override
-  void removeEventListener(BubbleEventListener listener) {
-    _listeners.remove(listener);
-  }
-
-  @override
-  Future<void> dispose() async {
-    await _eventController.close();
-    _listeners.clear();
-  }
-
   /// Handle events from native side
   void _handleEvent(BubbleEvent event) {
     Logger.d("AndroidBubbleService", "Received event: $event");
-    _eventController.add(event);
+    eventController.add(event);
 
     // Update internal state based on event
     if (event is BubbleStateChangeEvent) {
@@ -286,13 +238,10 @@ class AndroidBubbleService implements BubbleService {
       _isVisible = event.isVisible;
       _currentState = _currentState.copyWith(isVisible: event.isVisible);
     }
-
-    // Notify listeners
-    for (final listener in _listeners) {
-      _notifyListener(listener, event);
-    }
   }
 
-  /// Notify specific listener about event
-  void _notifyListener(BubbleEventListener listener, BubbleEvent event) {}
+  @override
+  Future<void> dispose() async {
+    await eventController.close();
+  }
 }

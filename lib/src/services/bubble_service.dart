@@ -1,12 +1,23 @@
 import 'dart:async';
+import 'dart:io';
 import '../models/bubble_config.dart';
 import '../models/bubble_position.dart';
 import '../models/bubble_events.dart';
+import 'android_bubble_service.dart';
 
 /// Abstract service interface for bubble functionality
 abstract class BubbleService {
+  /// Instance of the bubble service
+  static BubbleService get instance {
+    if (Platform.isAndroid) return AndroidBubbleService.instance;
+    throw UnimplementedError('Unsupported platform');
+  }
+
   /// Stream of bubble events
-  Stream<BubbleEvent> get eventStream;
+  Stream<BubbleEvent> get eventStream => eventController.stream;
+
+  final StreamController<BubbleEvent> eventController =
+      StreamController<BubbleEvent>.broadcast();
 
   /// Current bubble state
   BubbleState get currentState;
@@ -16,10 +27,6 @@ abstract class BubbleService {
 
   /// Whether the bubble is currently expanded
   bool get isExpanded;
-
-  /// Set the event bridge listener
-
-  void startEventBridgeListener();
 
   /// Initialize the bubble service with configuration
   Future<void> initialize(BubbleConfig config);
@@ -53,12 +60,6 @@ abstract class BubbleService {
 
   /// Request overlay permission
   Future<bool> requestOverlayPermission();
-
-  /// Add event listener
-  void addEventListener(BubbleEventListener listener);
-
-  /// Remove event listener
-  void removeEventListener(BubbleEventListener listener);
 
   /// Dispose the service
   Future<void> dispose();

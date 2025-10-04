@@ -31,12 +31,12 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> implements BubbleEventListener {
+class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
 
-    AndroidBubbleService.instance.initialize(
+    BubbleService.instance.initialize(
       BubbleConfig(
         startPosition: BubblePosition(x: 0, y: 300),
 
@@ -56,10 +56,10 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
       ),
     );
 
-    AndroidBubbleService.instance.eventStream.listen((event) {
+    BubbleService.instance.eventStream.listen((event) {
       switch (event) {
         case BubbleClickEvent():
-          AndroidBubbleService.instance.expandBubble();
+          BubbleService.instance.expandBubble();
 
         case BubbleErrorEvent():
           Logger.d('MainPage', event.errorMessage);
@@ -70,8 +70,6 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
           Logger.d("Unknown event: ${event.runtimeType}", "Unknown event");
       }
     });
-
-    AndroidBubbleService.instance.addEventListener(this);
   }
 
   @override
@@ -87,7 +85,7 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
             TextButton(
               onPressed: () async {
                 try {
-                  await AndroidBubbleService.instance.showBubble();
+                  await BubbleService.instance.showBubble();
                 } catch (e) {
                   Logger.d('MainPage', e.toString());
                 }
@@ -97,7 +95,7 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
             const SizedBox(height: 12.0),
             TextButton(
               onPressed: () async {
-                await AndroidBubbleService.instance.closeExpandBubble();
+                await BubbleService.instance.closeExpandBubble();
               },
               child: const Text('Close Expand Bubble'),
             ),
@@ -106,21 +104,6 @@ class _MainPageState extends State<MainPage> implements BubbleEventListener {
       ),
     );
   }
-
-  @override
-  void onAnimateToEdge(BubbleEdgeSide targetEdge) {}
-
-  @override
-  void onClose() {}
-
-  @override
-  void onExpand(bool isExpanded) {}
-
-  @override
-  void onStateChange(BubbleState previousState, BubbleState newState) {}
-
-  @override
-  void onVisibilityChange(bool isVisible) {}
 }
 
 class ExpandBubblePage extends StatelessWidget {
@@ -139,8 +122,7 @@ class ExpandBubblePage extends StatelessWidget {
               children: [
                 Expanded(child: Text("Hello from Flutter inside Bubble 🚀")),
                 IconButton(
-                  onPressed: () =>
-                      AndroidBubbleService.instance.closeExpandBubble(),
+                  onPressed: () => BubbleService.instance.closeExpandBubble(),
                   icon: const Icon(Icons.close),
                 ),
               ],

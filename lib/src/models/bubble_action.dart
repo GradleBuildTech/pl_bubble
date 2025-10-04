@@ -1,5 +1,4 @@
 import 'bubble_config.dart';
-import 'bubble_events.dart';
 import 'bubble_position.dart';
 
 /// Sealed class representing all possible bubble actions
@@ -69,21 +68,4 @@ class HasOverlayPermissionAction extends BubbleAction {
 /// Request overlay permission
 class RequestOverlayPermissionAction extends BubbleAction {
   const RequestOverlayPermissionAction();
-}
-
-/// Add event listener
-class AddEventListenerAction extends BubbleAction {
-  final BubbleEventListener listener;
-  const AddEventListenerAction(this.listener);
-}
-
-/// Remove event listener
-class RemoveEventListenerAction extends BubbleAction {
-  final BubbleEventListener listener;
-  const RemoveEventListenerAction(this.listener);
-}
-
-/// Dispose service
-class DisposeAction extends BubbleAction {
-  const DisposeAction();
 }
