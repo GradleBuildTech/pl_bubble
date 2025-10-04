@@ -7,13 +7,14 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.pl_bubble.permissions.BubblePermission
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity() {
 
     /// Instance of ChannelService to manage communication between Flutter and native Android
-    private val service = ChannelService.getInstance()
+    private var service : BubbleHandler? = null
 
 
     /// Flag to track if the service has been started
@@ -25,7 +26,7 @@ class MainActivity : FlutterActivity() {
             // Handle the service creation event
             if (intent?.action == "SERVICE_CREATED" && !isServiceStarted) {
                 isServiceStarted = true
-                service.startListeningService()
+                service?.startListeningService()
             }
         }
     }
@@ -49,9 +50,14 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         // Store the FlutterEngine instance in ServiceInstance for later use
-
+        service = BubbleHandler.getInstance() ?: BubbleHandler(
+            activity,
+            BubblePermission.getInstance(),
+        ) { listener ->
+            if(listener == null) return@BubbleHandler
+        }
         // Initialize the ChannelService with the current context and FlutterEngine
-        service.initMainBubbleService(this, flutterEngine)
+        service?.initMainBubbleService(this, flutterEngine)
 
     }
 
