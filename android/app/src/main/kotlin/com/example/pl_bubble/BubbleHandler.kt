@@ -67,7 +67,7 @@ class BubbleHandler (
         flutterEngine: FlutterEngine,
         result: MethodChannel.Result
     ) {
-        permissions.requestNotificationPermission(
+        permissions.requestPermission(
            activity = activity,
             addPermissionListener = addListener,
             object: BubblePermission.ResultCallBack {

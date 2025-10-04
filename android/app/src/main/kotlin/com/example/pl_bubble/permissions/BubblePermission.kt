@@ -111,7 +111,7 @@ class BubblePermission {
      * @param addPermissionListener Function to add the permission result listener.
      * @param callBack Callback to handle the result of the permission request.
      */
-    fun requestNotificationPermission(
+    fun requestPermission(
         activity: Activity,
         addPermissionListener: (RequestPermissionsResultListener?) -> Unit,
         callBack: ResultCallBack
